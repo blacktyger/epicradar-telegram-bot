@@ -49,8 +49,8 @@ class Mining:
     CALCULATOR_PERIODS = [1, 3, 7]
     PATTERNS = {
         'mining_algorithms': {
-            'progpow': ('pp', 'progpow', 'ProgPow', 'PROGPOW', 'Progpow'),
-            'randomx': ('rx', 'randomx', 'RANDOMX', 'RandomX', 'Randomx'),
+            'progpow': ('Pp', 'pp', 'progpow', 'ProgPow', 'PROGPOW', 'Progpow'),
+            'randomx': ('Rx', 'rx', 'randomx', 'RANDOMX', 'RandomX', 'Randomx', 'randomX'),
             'cuckoo': ('cu', 'ck', 'co', 'cuckoo', 'Cuckoo', 'CUCKOO')
             },
         'units': {

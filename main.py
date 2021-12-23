@@ -21,9 +21,9 @@ bot = Bot(token=TOKEN)
 dp = Dispatcher(bot, storage=storage)
 
 
-@dp.inline_handler(lambda inline_query: any(x in inline_query.query.split(' ') for x
-                                            in ['mining', 'calc', 'calculator', 'calculate', 'profit']))
+@dp.inline_handler(lambda inline_query: True)
 async def inline_mining(inline_query: InlineQuery):
+    print('dupa')
     result_id: str = hashlib.md5(inline_query.query.encode()).hexdigest()
     user_query = MiningParser(message=inline_query.query)
     response = MiningResponse(user_query)
@@ -32,7 +32,7 @@ async def inline_mining(inline_query: InlineQuery):
         id=result_id,
         title=response.title,
         description=kill_markdown('\n'.join(response.lines)),
-        input_message_content=InputTextMessageContent(response.print if response.complete else '[empty query]', parse_mode=ParseMode.MARKDOWN)
+        input_message_content=InputTextMessageContent(response.print, parse_mode=ParseMode.MARKDOWN)
         )
     # don't forget to set cache_time=1 for testing (default is 300s or 5m)
     await bot.answer_inline_query(inline_query.id, results=[item], cache_time=1)
