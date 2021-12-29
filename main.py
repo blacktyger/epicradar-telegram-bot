@@ -23,14 +23,18 @@ bot = Bot(token=TOKEN)
 dp = Dispatcher(bot, storage=storage)
 
 
+def mining_queries(msg): return any(cmd in msg.query.split(' ') for cmd in Mining.INLINE_TRIGGERS)
+def vitex_queries(msg): return any(cmd in msg.query.split(' ') for cmd in Vitex.INLINE_TRIGGERS)
+
+
 # //-- WELCOME INLINE -- \\ #
-@dp.inline_handler(lambda inline_query: True)
+@dp.inline_handler(lambda inline_query: not mining_queries(inline_query) and not vitex_queries(inline_query))
 async def inline_mining(inline_query: InlineQuery):
     result_id: str = hashlib.md5(inline_query.query.encode()).hexdigest()
     thumb_url = "https://i.ibb.co/Rgx9hv2/radar1.png"
     title = "EPIC-RADAR BOT COMMANDS:"
     lines = [
-        f"calc <algo> <hashrate> <units>",
+        f"mining <algo> <hashrate> <units>",
         f"price"
         ]
 
@@ -45,7 +49,7 @@ async def inline_mining(inline_query: InlineQuery):
 
 
 # //-- MINING INLINE -- \\ #
-@dp.inline_handler(lambda inline_query: any(cmd in inline_query.query.split(' ') for cmd in Mining.INLINE_TRIGGERS))
+@dp.inline_handler(lambda inline_query: mining_queries(inline_query))
 async def inline_mining(inline_query: InlineQuery):
     result_id: str = hashlib.md5(inline_query.query.encode()).hexdigest()
     user_query = MiningParser(message=inline_query.query)
@@ -62,7 +66,7 @@ async def inline_mining(inline_query: InlineQuery):
 
 
 # //-- VITEX/TRADING INLINE -- \\ #
-@dp.inline_handler(lambda inline_query: any(cmd in inline_query.query.split(' ') for cmd in Vitex.INLINE_TRIGGERS))
+@dp.inline_handler(lambda inline_query: vitex_queries(inline_query))
 async def inline_vitex(inline_query: InlineQuery):
     result_id: str = hashlib.md5(inline_query.query.encode()).hexdigest()
     user_query = VitexParser(message=inline_query.query)
