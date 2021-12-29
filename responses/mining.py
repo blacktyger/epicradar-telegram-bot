@@ -50,10 +50,9 @@ class MiningResponse:
             income = round(float(data['currency_rig_profit']), 2)
             lines = [
                 f"⚙ *{hashrate} {self.user_query.match_units_with_algo()[0]}* {self.user_query.get_algo().capitalize()}",
-                f"⏱ 24h: *{reward} EPIC* | {income} {currency}",
                 f"◽ Solo block in: *{round(float(data['hours_for_block']), 2)}*h",
                 ]
-
+            self.title = f"⏱ 24h: *{reward} EPIC* | {income} {currency}",
             self.lines = lines
 
         else:
