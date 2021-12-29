@@ -44,8 +44,8 @@ async def inline_mining(inline_query: InlineQuery):
     result_id: str = hashlib.md5(inline_query.query.encode()).hexdigest()
     user_query = VitexParser(message=inline_query.query)
     # response = VitexResponse(user_query)
-    usd = round(user_query.response['price']['usd'], 2)
-    btc = round(user_query.response['price']['btc'], 8)
+    usd = round(float(user_query.response['price']['usd']), 2)
+    btc = round(float(user_query.response['price']['btc']), 8)
 
     response = f"EPIC: {usd} USD \nEPIC: {btc} BTC"
     item = InlineQueryResultArticle(
