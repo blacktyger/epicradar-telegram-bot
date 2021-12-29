@@ -78,12 +78,12 @@ async def inline_vitex(inline_query: InlineQuery):
     volume_btc = user_query.response['volume']['btc']
     url = "https://x.vite.net/trade?symbol=EPIC-002_BTC-000"
 
-    title = f"EPIC: {usd} USD\n{btc} BTC ({change}%)"
-    body = f"24H Volume: {volume_epic} EPIC | {volume_btc} BTC\n"
+    title = f"EPIC: {usd} USD"
+    body = f"{btc} BTC ({change}%)\n24H Volume: {volume_epic} EPIC | {volume_btc} BTC"
 
     item = InlineQueryResultArticle(
         id=result_id,
-        url=url,
+        # url=url,
         title=title,
         description=body,
         thumb_url="https://i.ibb.co/j3QGQ3G/tg-bot-vitex-logo.png",
