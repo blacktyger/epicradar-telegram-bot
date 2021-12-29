@@ -36,7 +36,7 @@ async def inline_mining(inline_query: InlineQuery):
         input_message_content=InputTextMessageContent(response.print, parse_mode=ParseMode.MARKDOWN)
         )
     # don't forget to set cache_time=1 for testing (default is 300s or 5m)
-    await bot.answer_inline_query(inline_query.id, results=[item], cache_time=100)
+    await bot.answer_inline_query(inline_query.id, results=[item], cache_time=1)
 
 
 @dp.inline_handler(lambda inline_query: any(cmd in inline_query.query.split(' ') for cmd in Vitex.INLINE_TRIGGERS))
