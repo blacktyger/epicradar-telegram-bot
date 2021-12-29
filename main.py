@@ -27,25 +27,25 @@ def mining_queries(msg): return any(cmd in msg.query.split(' ') for cmd in Minin
 def vitex_queries(msg): return any(cmd in msg.query.split(' ') for cmd in Vitex.INLINE_TRIGGERS)
 
 
-# //-- WELCOME INLINE -- \\ #
-@dp.inline_handler(lambda inline_query: not mining_queries(inline_query) and not vitex_queries(inline_query))
-async def inline_mining(inline_query: InlineQuery):
-    result_id: str = hashlib.md5(inline_query.query.encode()).hexdigest()
-    thumb_url = "https://i.ibb.co/Rgx9hv2/radar1.png"
-    title = "EPIC-RADAR BOT COMMANDS:"
-    lines = [
-        f"mining <algo> <hashrate> <units>",
-        f"price"
-        ]
-
-    item = InlineQueryResultArticle(
-        id=result_id,
-        title=title,
-        description='\n'.join(lines),
-        thumb_url=thumb_url,
-        input_message_content=InputTextMessageContent('xx', parse_mode=ParseMode.MARKDOWN)
-        )
-    await bot.answer_inline_query(inline_query.id, results=[item], cache_time=1)
+# # //-- WELCOME INLINE -- \\ #
+# @dp.inline_handler(lambda inline_query: not mining_queries(inline_query) and not vitex_queries(inline_query))
+# async def inline_mining(inline_query: InlineQuery):
+#     result_id: str = hashlib.md5(inline_query.query.encode()).hexdigest()
+#     thumb_url = "https://i.ibb.co/Rgx9hv2/radar1.png"
+#     title = "EPIC-RADAR BOT COMMANDS:"
+#     lines = [
+#         f"mining <algo> <hashrate> <units>",
+#         f"price"
+#         ]
+#
+#     item = InlineQueryResultArticle(
+#         id=result_id,
+#         title=title,
+#         description='\n'.join(lines),
+#         thumb_url=thumb_url,
+#         input_message_content=InputTextMessageContent('xx', parse_mode=ParseMode.MARKDOWN)
+#         )
+#     await bot.answer_inline_query(inline_query.id, results=[item], cache_time=1)
 
 
 # //-- MINING INLINE -- \\ #
