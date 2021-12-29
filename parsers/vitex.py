@@ -1,3 +1,5 @@
+import requests
+
 from settings import Database, Vitex
 
 
