@@ -50,15 +50,15 @@ async def inline_vitex(inline_query: InlineQuery):
     volume_epic = user_query.response['volume']['epic']
     volume_btc = user_query.response['volume']['btc']
 
-    title = f"**EPIC: {usd} USD | {btc} BTC ({change}%)**"
+    title = f"EPIC: {usd} USD | {btc} BTC ({change}%)"
     body = f"24H Volume: {volume_epic} EPIC | {volume_btc} BTC\n" \
-           f"EPIC-001 vs BTC-000 VITEX EXCHANGE'"
+           f"[TRADE EPIC ON VITEX EXCHANGE HERE](https://wykop.pl)"
 
     item = InlineQueryResultArticle(
         id=result_id,
         title=title,
         description=body,
-        input_message_content=InputTextMessageContent('\n'.join([title, body]), parse_mode=ParseMode.MARKDOWN)
+        input_message_content=InputTextMessageContent('\n'.join([f"*{title}*", body]), parse_mode=ParseMode.MARKDOWN)
         )
     # don't forget to set cache_time=1 for testing (default is 300s or 5m)
     await bot.answer_inline_query(inline_query.id, results=[item], cache_time=100)
