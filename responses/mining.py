@@ -17,6 +17,8 @@ class MiningResponse:
         self.thumb_url = THUMBNAIL_URL
         self.complete = False
 
+        self.prepare_lines()
+
     def get_rig_report(self):
         algorithm = self.user_query.algo
         hashrate = self.user_query.hashrate
