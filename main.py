@@ -45,12 +45,17 @@ async def inline_mining(inline_query: InlineQuery):
     user_query = VitexParser(message=inline_query.query)
     # response = VitexResponse(user_query)
     usd = round(float(user_query.response['price']['usd']), 2)
-    btc = round(float(user_query.response['price']['btc']), 8)
+    btc = "{:.8f}".format(float(user_query.response['price']['btc']))
+    change = user_query.response['change']['24h_percentage']
+    volume_usd = user_query.response['volume']['usd']
+    volume_btc = user_query.response['volume']['btc']
 
-    response = f"EPIC: {usd} USD \nEPIC: {btc} BTC"
+    response = f"Last price: {usd} USD | {btc} BTC ({change}%)\n" \
+               f"24H Volume: {volume_usd} USD | {volume_btc} BTC"
+
     item = InlineQueryResultArticle(
         id=result_id,
-        title='EPIC-001 vs BTC-000 VITEX PRICE',
+        title='EPIC-001 vs BTC-000 VITEX EXCHANGE',
         description=response,
         input_message_content=InputTextMessageContent(response, parse_mode=ParseMode.MARKDOWN)
         )
