@@ -147,7 +147,7 @@ class Rig:
         self.reported_yield = MiningYield(rig=self).reward()
         self.reported_costs = MiningCost(rig=self).total()
         self.reported_profit = MiningProfit(rig=self).profit()
-        print(f"Rig instance updated")
+        # print(f"Rig instance updated")
 
     def get_report(self):
         self._report()

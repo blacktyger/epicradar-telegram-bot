@@ -1,7 +1,9 @@
-import itertools
+"""One place for all global settings used in different parts of code"""
+
 from json import JSONDecodeError
 from decimal import Decimal
 from typing import Union
+import itertools
 import json
 
 import requests
@@ -34,7 +36,7 @@ class MarketData:
                 return 0
 
     def currency_to_btc(self, value: Union[Decimal, float, int], currency: str):
-        """Return price in Bitcoin for given amount of currency"""
+        """Find bitcoin price in given currency"""
         symbol = currency.upper()
         if len(symbol) == 3:
             try:
@@ -44,6 +46,16 @@ class MarketData:
             except JSONDecodeError as er:
                 print(er)
                 return 0
+
+
+class Vitex:
+    EPIC_SYMBOL = "EPIC-002"
+    BTC_SYMBOL = "BTC-000"
+    DECIMAL = 10 ** 8
+
+    PATTERNS = {'price': {}}
+    INLINE_TRIGGERS = ['price']
+
 
 class Mining:
     CALCULATOR_PERIODS = [1, 3, 7]
@@ -64,11 +76,14 @@ class Mining:
             }
         }
 
+    INLINE_TRIGGERS = ['mining', 'calculator', 'calc']
     ALGO_PATTERNS = list(itertools.chain(*PATTERNS['mining_algorithms'].values()))
-
 
 class Database:
     API_URL = "https://epic-radar.com/api/"
+
+    API_GET_VITEX_HOLDERS = "vitex_holders/"
+    API_GET_VITEX_UPDATE = "vitex/"
     API_GET_BLOCKS = "block/"
 
     def get_last_block_data(self):
@@ -77,9 +92,26 @@ class Database:
         return blocks['results'][0]
 
 
+class FEED_API:
+    class EXPLORER_EPIC_TECH:
+        API_URL = 'https://explorer.epic.tech/epic_explorer/v1'
+        API_CALLS = {'latest_block': 'blockchain_block/latesblockdetails',
+                     'block_by_height': 'blockchain_block'}
+        PUBLIC_API_URL = "https://explorer.epic.tech/api?q="
+
+    class EXPLORER_EPICMINE_ORG:
+        API_URL = 'https://api.epicmine.org'
+
+    class VITESCAN_IO:
+        BASE_URL = "https://vitescan.io/"
+        HOLDERS_API_URL = "vs-api/token?tokenId=tti_f370fadb275bc2a1a839c753&tabFlag=holders"
+
+
 class Blockchain:
+    DECIMAL = 10 ** 8
     HALVINGS = [1157760, 1224000, 2275200]
     BLOCK_TIME = 60
+    ALGORITHMS = ['cuckoo', 'progpow', 'randomx']
     BLOCKS_PER_DAY = Decimal(86400 / BLOCK_TIME)
     ALGORITHM_PERCENTAGE = {'cuckoo': 0.4, 'progpow': 0.48, 'randomx': 0.48}
 

@@ -68,10 +68,11 @@ class MiningParser:
                 self._units(temp_unit)
 
                 if self.unit:
-                    print(f'Unit found without space, {self.unit}')
+                    # print(f'Unit found without space, {self.unit}')
+                    pass
                 else:
                     self.unit = 'hash'
-                    print('No unit found in message, using H/s')
+                    # print('No unit found in message, using H/s')
 
             hashrate = value * self.get_units()[1]
             print(f"PARSED HASHRATE: {value} UNIT: {self.unit} ({hashrate} H/s)")
