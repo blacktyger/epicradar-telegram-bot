@@ -23,6 +23,28 @@ bot = Bot(token=TOKEN)
 dp = Dispatcher(bot, storage=storage)
 
 
+# //-- WELCOME INLINE -- \\ #
+@dp.inline_handler(lambda inline_query: True)
+async def inline_mining(inline_query: InlineQuery):
+    result_id: str = hashlib.md5(inline_query.query.encode()).hexdigest()
+    thumb_url = "https://i.ibb.co/Rgx9hv2/radar1.png"
+    title = "EPIC-RADAR BOT"
+    lines = [
+        f"Active commands:",
+        f"|Mining Calculator| - calc <algorithm> <hashrate> <units>",
+        f"|Vitex Stats| - price"
+        ]
+
+    item = InlineQueryResultArticle(
+        id=result_id,
+        title=title,
+        description='\n'.join(lines),
+        thumb_url=thumb_url,
+        input_message_content=InputTextMessageContent('xx', parse_mode=ParseMode.MARKDOWN)
+        )
+    await bot.answer_inline_query(inline_query.id, results=[item], cache_time=1)
+
+
 # //-- MINING INLINE -- \\ #
 @dp.inline_handler(lambda inline_query: any(cmd in inline_query.query.split(' ') for cmd in Mining.INLINE_TRIGGERS))
 async def inline_mining(inline_query: InlineQuery):
