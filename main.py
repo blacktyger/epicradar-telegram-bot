@@ -27,9 +27,8 @@ dp = Dispatcher(bot, storage=storage)
 async def inline_mining(inline_query: InlineQuery):
     result_id: str = hashlib.md5(inline_query.query.encode()).hexdigest()
     user_query = MiningParser(message=inline_query.query)
-    # response = MiningResponse(user_query)
+    response = MiningResponse(user_query)
 
-    print(user_query.response['price'])
     item = InlineQueryResultArticle(
         id=result_id,
         title=response.title,
@@ -44,15 +43,16 @@ async def inline_mining(inline_query: InlineQuery):
 async def inline_mining(inline_query: InlineQuery):
     result_id: str = hashlib.md5(inline_query.query.encode()).hexdigest()
     user_query = VitexParser(message=inline_query.query)
-    response = VitexResponse(user_query)
+    # response = VitexResponse(user_query)
+    usd = user_query.response['price']['usd']
+    btc = user_query.response['price']['usd']
 
-    print(f"inline: {inline_query.query.split(' ')}")
-
+    response = f"EPIC: {usd} USD \n EPIC: {btc} BTC"
     item = InlineQueryResultArticle(
         id=result_id,
-        title=response.title,
-        description=kill_markdown('\n'.join(response.lines)),
-        input_message_content=InputTextMessageContent(response.print, parse_mode=ParseMode.MARKDOWN)
+        title='Epic-Cash VITEX PRICE',
+        description=response,
+        input_message_content=InputTextMessageContent(response, parse_mode=ParseMode.MARKDOWN)
         )
     # don't forget to set cache_time=1 for testing (default is 300s or 5m)
     await bot.answer_inline_query(inline_query.id, results=[item], cache_time=100)
