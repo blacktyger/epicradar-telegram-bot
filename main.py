@@ -52,10 +52,11 @@ async def inline_vitex(inline_query: InlineQuery):
 
     title = f"EPIC: {usd} USD | {btc} BTC ({change}%)"
     body = f"24H Volume: {volume_epic} EPIC | {volume_btc} BTC\n" \
-           f"[TRADE EPIC ON VITEX EXCHANGE HERE](https://wykop.pl)"
+           f"TRADE EPIC ON VITEX EXCHANGE"
 
     item = InlineQueryResultArticle(
         id=result_id,
+        url="https://vitex.net",
         title=title,
         description=body,
         input_message_content=InputTextMessageContent('\n'.join([f"*{title}*", body]), parse_mode=ParseMode.MARKDOWN)
