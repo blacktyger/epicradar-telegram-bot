@@ -51,16 +51,15 @@ async def inline_vitex(inline_query: InlineQuery):
     volume_btc = user_query.response['volume']['btc']
     url = "https://x.vite.net/trade?symbol=EPIC-002_BTC-000"
 
-    title = f"EPIC: {usd} USD | {btc} BTC ({change}%)"
-    body = f"24H Volume: {volume_epic} EPIC | {volume_btc} BTC\n" \
-           f"TRADE EPIC ON VITEX EXCHANGE"
+    title = f"EPIC: {usd} USD\n{btc} BTC ({change}%)"
+    body = f"24H Volume: {volume_epic} EPIC | {volume_btc} BTC\n"
 
     item = InlineQueryResultArticle(
         id=result_id,
         url=url,
         title=title,
         description=body,
-        thumb_url="https://assets.coingecko.com/coins/images/9520/small/Epic_Coin_NO_drop_shadow.png?1620122642",
+        thumb_url="responses/tg_bot_mining_logo.png",
         input_message_content=InputTextMessageContent('\n'.join([f"*{title}*", body]), parse_mode=ParseMode.MARKDOWN)
         )
     # don't forget to set cache_time=1 for testing (default is 300s or 5m)
