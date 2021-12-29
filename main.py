@@ -28,11 +28,10 @@ dp = Dispatcher(bot, storage=storage)
 async def inline_mining(inline_query: InlineQuery):
     result_id: str = hashlib.md5(inline_query.query.encode()).hexdigest()
     thumb_url = "https://i.ibb.co/Rgx9hv2/radar1.png"
-    title = "EPIC-RADAR BOT"
+    title = "EPIC-RADAR BOT COMMANDS:"
     lines = [
-        f"Active commands:",
-        f"|Mining Calculator| - calc <algorithm> <hashrate> <units>",
-        f"|Vitex Stats| - price"
+        f"calc <algo> <hashrate> <units>",
+        f"price"
         ]
 
     item = InlineQueryResultArticle(
