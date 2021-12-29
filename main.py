@@ -59,7 +59,7 @@ async def inline_vitex(inline_query: InlineQuery):
         url=url,
         title=title,
         description=body,
-        thumb_url="responses/tg_bot_mining_logo.png",
+        thumb_url="https://i.ibb.co/wNNSbyH/tg-bot-mining-logo.png",
         input_message_content=InputTextMessageContent('\n'.join([f"*{title}*", body]), parse_mode=ParseMode.MARKDOWN)
         )
     # don't forget to set cache_time=1 for testing (default is 300s or 5m)
