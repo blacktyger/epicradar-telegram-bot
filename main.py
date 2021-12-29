@@ -29,6 +29,7 @@ async def inline_mining(inline_query: InlineQuery):
     result_id: str = hashlib.md5(inline_query.query.encode()).hexdigest()
     user_query = MiningParser(message=inline_query.query)
     response = MiningResponse(user_query)
+    print(response.title)
 
     item = InlineQueryResultArticle(
         id=result_id,
