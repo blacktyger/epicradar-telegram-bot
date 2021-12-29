@@ -23,6 +23,7 @@ bot = Bot(token=TOKEN)
 dp = Dispatcher(bot, storage=storage)
 
 
+# //-- MINING INLINE -- \\ #
 @dp.inline_handler(lambda inline_query: any(cmd in inline_query.query.split(' ') for cmd in Mining.INLINE_TRIGGERS))
 async def inline_mining(inline_query: InlineQuery):
     result_id: str = hashlib.md5(inline_query.query.encode()).hexdigest()
@@ -33,12 +34,13 @@ async def inline_mining(inline_query: InlineQuery):
         id=result_id,
         title=response.title,
         description=kill_markdown('\n'.join(response.lines)),
+        thumb_url="https://i.ibb.co/j3QGQ3G/tg-bot-vitex-logo.png",
         input_message_content=InputTextMessageContent(response.print, parse_mode=ParseMode.MARKDOWN)
         )
-    # don't forget to set cache_time=1 for testing (default is 300s or 5m)
     await bot.answer_inline_query(inline_query.id, results=[item], cache_time=1)
 
 
+# //-- VITEX/TRADING INLINE -- \\ #
 @dp.inline_handler(lambda inline_query: any(cmd in inline_query.query.split(' ') for cmd in Vitex.INLINE_TRIGGERS))
 async def inline_vitex(inline_query: InlineQuery):
     result_id: str = hashlib.md5(inline_query.query.encode()).hexdigest()
