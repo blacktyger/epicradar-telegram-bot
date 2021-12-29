@@ -54,11 +54,11 @@ class MiningResponse:
             self.inline_response = '\n'.join(self.inline_lines)
 
             # PREPARE CHAT RESPONSE (ALL LINES, MARKDOWN ACCEPTED)
-            self.chat_lines = '\n'.join([
+            self.chat_lines = [
                 f"⏱ 24h: *{reward} EPIC* | *{income} {currency}*",
                 f"⚙ *{hashrate} {self.user_query.match_units_with_algo()[0]}* {self.user_query.get_algo().capitalize()}",
                 f"◽ Solo block in: *{round(float(data['hours_for_block']), 2)}h*",
-                ])
+                ]
             self.chat_response = '\n'.join(self.chat_lines)
 
         else:
