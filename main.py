@@ -8,7 +8,7 @@ from responses.mining import MiningResponse
 # from responses.vitex import VitexResponse
 from parsers.mining import MiningParser
 from parsers.vitex import VitexParser
-from settings import Vitex
+from settings import Vitex, Mining
 from logger_ import logger
 from keys import TOKEN
 
