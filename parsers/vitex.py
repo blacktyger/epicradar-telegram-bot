@@ -21,5 +21,5 @@ class VitexParser:
             if cmd in self.PATTERNS.keys():
                 url = f"{self.DATABASE_API_URL}{self.VITEX_UPDATE_QUERY}"
                 response = requests.get(url)
-                self.response = response.json()
+                self.response = response.json()['results'][0]
                 print(self.response['price'])
