@@ -23,7 +23,7 @@ bot = Bot(token=TOKEN)
 dp = Dispatcher(bot, storage=storage)
 
 
-@dp.inline_handler(lambda inline_query: any(cmd in inline_query.query.split(' ') for cmd in PATTERNS.INLINE_TRIGGERS))
+@dp.inline_handler(lambda inline_query: any(cmd in inline_query.query.split(' ') for cmd in Mining.INLINE_TRIGGERS))
 async def inline_mining(inline_query: InlineQuery):
     result_id: str = hashlib.md5(inline_query.query.encode()).hexdigest()
     user_query = MiningParser(message=inline_query.query)
@@ -40,7 +40,7 @@ async def inline_mining(inline_query: InlineQuery):
     await bot.answer_inline_query(inline_query.id, results=[item], cache_time=100)
 
 
-@dp.inline_handler(lambda inline_query: any(cmd in inline_query.query.split(' ') for cmd in Vitex.PATTERNS.keys()))
+@dp.inline_handler(lambda inline_query: any(cmd in inline_query.query.split(' ') for cmd in Vitex.INLINE_TRIGGERS))
 async def inline_mining(inline_query: InlineQuery):
     result_id: str = hashlib.md5(inline_query.query.encode()).hexdigest()
     user_query = VitexParser(message=inline_query.query)
