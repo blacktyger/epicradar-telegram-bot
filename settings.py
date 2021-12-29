@@ -53,8 +53,7 @@ class Vitex:
     BTC_SYMBOL = "BTC-000"
     DECIMAL = 10 ** 8
 
-    PATTERNS = {'price': {}}
-    INLINE_TRIGGERS = ['price']
+    INLINE_TRIGGERS = ['price', 'vitex']
 
 
 class Mining:

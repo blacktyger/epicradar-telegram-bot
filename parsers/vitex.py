@@ -8,7 +8,7 @@ class VitexParser:
     DATABASE_API_URL = Database.API_URL
     VITEX_UPDATE_QUERY = Database.API_GET_VITEX_UPDATE
 
-    PATTERNS = Vitex.PATTERNS
+    COMMANDS = Vitex.INLINE_TRIGGERS
 
     def __init__(self, message: str):
         self.message = message.split(' ')
@@ -18,7 +18,7 @@ class VitexParser:
 
     def _parse_command(self):
         for cmd in self.message:
-            if cmd in self.PATTERNS.keys():
+            if cmd in self.COMMANDS:
                 url = f"{self.DATABASE_API_URL}{self.VITEX_UPDATE_QUERY}"
                 response = requests.get(url)
                 self.response = response.json()['results'][0]
