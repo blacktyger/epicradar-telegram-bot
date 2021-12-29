@@ -36,6 +36,7 @@ class MiningResponse:
             self.inline_lines.append(line)
 
         self.inline_response = '\n'.join(self.inline_lines)
+        self.chat_response = '\n'.join(self.inline_lines)
         data = self.get_rig_report()
 
         if data:
