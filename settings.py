@@ -78,6 +78,7 @@ class Mining:
     INLINE_TRIGGERS = ['mining', 'calculator', 'calc']
     ALGO_PATTERNS = list(itertools.chain(*PATTERNS['mining_algorithms'].values()))
 
+
 class Database:
     API_URL = "https://epic-radar.com/api/"
     API_GET_VITEX_UPDATE = "vitex/update/"
@@ -91,9 +92,9 @@ class Database:
 
     def get_last_block_data(self):
         response = requests.get(f"{self.API_URL}{self.API_GET_BLOCKS}")
+        print(f"{self.API_URL}{self.API_GET_BLOCKS}")
         blocks = json.loads(response.content)
         return blocks['results'][0]
-
 
 
 class FEED_API:
