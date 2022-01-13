@@ -143,7 +143,10 @@ class Rig:
         self.reported_profit: dict = {}
 
     def _report(self):
-        self.updated_block = Database().get_last_block_data()
+        # self.updated_block = Database().get_last_block_data()
+        self.updated_block = requests.get(f"https://epic-radar.com/api/explorer/blocks/").json()
+        print(self.updated_block)
+
         self.reported_yield = MiningYield(rig=self).reward()
         self.reported_costs = MiningCost(rig=self).total()
         self.reported_profit = MiningProfit(rig=self).profit()
