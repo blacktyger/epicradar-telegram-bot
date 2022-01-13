@@ -90,9 +90,12 @@ class Database:
     API_GET_BLOCKS = "explorer/blocks/"
     API_GET_POOLS = "explorer/pools/"
 
+    auth_token = "cbb072c17048624e608e349bb4de6c94cb97a78c"
+    headers = {'Authorization': f"Token {auth_token}", 'Content-Type': 'application/json'}
+
     def get_last_block_data(self):
-        response = requests.get(f"https://epic-radar.com/api/explorer/blocks/")
-        blocks = response.json()
+        response = requests.get(f"{self.API_URL}{self.API_GET_BLOCKS}", headers=self.headers)
+        blocks = json.loads(response.content)
         return blocks['results'][0]
 
 
