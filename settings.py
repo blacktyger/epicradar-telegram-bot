@@ -89,6 +89,10 @@ class Database:
     API_GET_BLOCKS = "explorer/blocks/"
     API_GET_POOLS = "explorer/pools/"
 
+    def get_last_block_data(self):
+        response = requests.get(f"{self.API_URL}{self.API_GET_BLOCKS}")
+        blocks = json.loads(response.content)
+        return blocks['results'][0]
 
 class FEED_API:
     class EXPLORER_EPIC_TECH:
