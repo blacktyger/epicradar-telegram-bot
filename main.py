@@ -132,12 +132,12 @@ async def register_test_members(message: types.Message):
 async def list_test_members(message: types.Message):
     icons = {'bees': '🐝', 'rabbits': '🐇', 'owls': '🦉'}
 
-    users = [user for user, values in db_v3_tests.get_all().items() if isinstance(values, dict)]
+    users = [{user, values} for user, values in db_v3_tests.get_all().items() if isinstance(values, dict)]
     print(users)
 
-    bees = [k for k in users if 'bees' in k['team']]
-    owls = [k for k in users if 'owls' in k['team']]
-    rabbits = [k for k in users if 'rabbits' in k['team']]
+    bees = [k for k, v in users if 'bees' in k['team']]
+    owls = [k for k, v in users if 'owls' in k['team']]
+    rabbits = [k for k, v in users if 'rabbits' in k['team']]
 
     response = f"👤 Registered: {len(users)}\n" \
                f"{icons['bees']}Bees: {len(bees)}\n" \
