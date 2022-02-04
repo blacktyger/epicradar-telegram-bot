@@ -96,6 +96,7 @@ async def inline_vitex(inline_query: InlineQuery):
 # //-- V3 TEST MEMBERS REGISTER -- \\ #
 @dp.message_handler(commands=['help'])
 async def help_command(message: types.Message):
+    print('HELP')
     user = message.from_user.username
     await message.reply(user, parse_mode=ParseMode.MARKDOWN, reply=False)
 
