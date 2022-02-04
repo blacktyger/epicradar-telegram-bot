@@ -164,6 +164,7 @@ async def list_test_members(message: types.Message):
 
         for user in users:
             teams[user['team']].append(user['username'])
+            print(user)
 
         response = f"<b>🏆 Registered Volunteers:</b>\n\n" \
                    f"{icons['bees']} Bees: {len(teams['bees'])}\n" \
