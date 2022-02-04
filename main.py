@@ -98,26 +98,51 @@ async def inline_vitex(inline_query: InlineQuery):
 
 
 # //-- V3 TEST MEMBERS REGISTER -- \\ #
-@dp.message_handler(commands=['add_to_bees', 'add_to_sloths', 'add_to_owls'])
+@dp.message_handler(commands=['add_to_bees', 'add_to_rabbits', 'add_to_owls'])
 async def register_test_members(message: types.Message):
     cmd = message.get_command()
     team = cmd.split('_')[-1]
-    icons = {'bees': '🐝', 'sloths': '🦥', 'owls': '🦉'}
+    icons = {'bees': '🐝', 'rabbits': '🐇', 'owls': '🦉'}
 
+    # If @username not specified use sender's @username
     if '@' in message.text:
         user = message.text.split('@')[-1]
     else:
         user = message.from_user.username
 
+    # Prepare dict to save to database
     data = {'time': get_time(), 'user': user, 'team': team,  'msg_id': message.message_id}
 
-    if not db_v3_tests.get(f"{team}_{user}"):
+    # If @username is not found in DB create new record
+    if user not in db_v3_tests.get_all().keys():
         db_v3_tests.save(f"{team}_{user}", data)
         response = f"<b>@{user}</b> added to {icons[team]} {team.capitalize()} team!"
+
+    # If @username already exists show proper message
     else:
         team = [k for k, v in db_v3_tests.get_all().items() if user in k]
-        print(team[0].split('_')[0])
-        response = f"<b>@{user}</b> already in {icons[team[0].split('_')[0]]} {team[0].split('_')[0].capitalize()} team!"
+        team = team[0].split('_')[0] if team else None
+        response = f"<b>@{user}</b> already in {icons[team]} {team.capitalize()} team!"
+
+    await message.reply(response, parse_mode=ParseMode.HTML, reply=False)
+
+
+# //-- V3 TEST MEMBERS REMOVE -- \\ #
+@dp.message_handler(commands=['delete', 'del', 'remove'])
+async def remove_test_members(message: types.Message):
+    cmd = message.get_command()
+    user = message.from_user.username
+    icons = {'bees': '🐝', 'rabbits': '🐇', 'owls': '🦉'}
+
+    # If @username is not found in DB show proper message
+    if user not in db_v3_tests.get_all().keys():
+        response = f"ℹ️ <b>@{user}</b> have no team assigned."
+
+    # If @username exists delete that record
+    else:
+        team = [k for k, v in db_v3_tests.get_all().items() if user in k]
+        team = team[0].split('_')[0] if team else None
+        response = f"❗️<b>@{user}</b> removed from {icons[team]} {team.capitalize()} team!"
 
     await message.reply(response, parse_mode=ParseMode.HTML, reply=False)
 
