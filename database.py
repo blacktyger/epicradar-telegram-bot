@@ -49,7 +49,7 @@ class DataBase:
 
     def delete(self, key):
         with shelve.open(self.file, 'r') as db:
-            del db[key]
+            db.pop(key)
             logger.debug(f'{key} deleted from db({self}')
 
     def save(self, key: str, value):
