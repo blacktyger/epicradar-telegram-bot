@@ -140,9 +140,10 @@ async def remove_test_members(message: types.Message):
 
     # If @username exists delete that record
     else:
-        team = [k for k, v in db_v3_tests.get_all().items() if user in k]
-        team = db_v3_tests.get(team[0])['team']
+        username = [k for k, v in db_v3_tests.get_all().items() if user in k]
+        team = db_v3_tests.get(username[0])['team']
         response = f"❗️<b>@{user}</b> removed from {team.capitalize()} {icons[team]} Team!"
+        db_v3_tests.save(user, None)
 
     await message.reply(response, parse_mode=ParseMode.HTML, reply=False)
 
