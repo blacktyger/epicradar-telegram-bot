@@ -98,7 +98,7 @@ async def inline_vitex(inline_query: InlineQuery):
 
 
 # //-- V3 TEST MEMBERS REGISTER -- \\ #
-@dp.message_handler(commands=['add_to_bees', 'add_to_meerkats' 'add_to_eagles'])
+@dp.message_handler(commands=['add_to_bees', 'add_to_sloths' 'add_to_owls'])
 async def register_test_members(message: types.Message):
     cmd = message.get_command()
     team = cmd.split('_')[-1]
@@ -110,9 +110,12 @@ async def register_test_members(message: types.Message):
 
     data = {'time': get_time(), 'user': user, 'team': team,  'msg_id': message.message_id}
     db_v3_tests.save(f"{team}_{user}", data)
-    print(db_v3_tests.get(f"{team}_{user}"))
 
-    await message.reply(f"{team}_{user}", parse_mode=ParseMode.HTML, reply=False)
+    icons = {'bees': '🐝', 'sloths': '🦥', 'owls': '🦉'}
+    response = f"<b>@{user}</b> added to {icons[team]} {team.capitalize()} team!"
+
+    print(db_v3_tests.get(f"{team}_{user}"))
+    await message.reply(response, parse_mode=ParseMode.HTML, reply=False)
 
 
 @dp.message_handler(lambda message: any(x in message.text.split(' ') for x in Mining.ALGO_PATTERNS))
