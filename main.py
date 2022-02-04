@@ -16,7 +16,7 @@ from keys import TOKEN
 __version__ = '0.1.0'
 
 # /------ AIOGRAM BOT SETTINGS ------\ #
-from tools import kill_markdown
+from tools import kill_markdown, get_time
 
 storage = MemoryStorage()
 bot = Bot(token=TOKEN)
@@ -96,8 +96,11 @@ async def inline_vitex(inline_query: InlineQuery):
 # //-- V3 TEST MEMBERS REGISTER -- \\ #
 @dp.message_handler(commands=['help'])
 async def help_command(message: types.Message):
-    print('HELP')
+    cmd = message.get_command()
     user = message.from_user.username
+    data = {'time': get_time(), 'cmd': cmd, 'user': user, 'msg_id': message.message_id}
+    print(data)
+
     await message.reply(user, parse_mode=ParseMode.MARKDOWN, reply=False)
 
 
