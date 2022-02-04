@@ -132,7 +132,7 @@ async def register_test_members(message: types.Message):
 async def list_test_members(message: types.Message):
     icons = {'bees': '🐝', 'rabbits': '🐇', 'owls': '🦉'}
 
-    users = [user for user in db_v3_tests.get_all() if 'team' in user.values()]
+    users = [user for user, values in db_v3_tests.get_all().items() if 'team' in values]
     print(users)
 
     bees = [k for k in users if 'bees' in k['team']]
