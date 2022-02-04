@@ -135,9 +135,9 @@ async def list_test_members(message: types.Message):
     users = [{user: values} for user, values in db_v3_tests.get_all().items() if isinstance(values, dict)]
     print(users)
 
-    bees = [k for k, v in users if 'bees' in k['team']]
-    owls = [k for k, v in users if 'owls' in k['team']]
-    rabbits = [k for k, v in users if 'rabbits' in k['team']]
+    bees = [k for k, v in users if 'bees' in v['team']]
+    owls = [k for k, v in users if 'owls' in v['team']]
+    rabbits = [k for k, v in users if 'rabbits' in v['team']]
 
     response = f"👤 Registered: {len(users)}\n" \
                f"{icons['bees']}Bees: {len(bees)}\n" \
