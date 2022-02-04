@@ -172,6 +172,33 @@ async def list_test_members(message: types.Message):
         await message.reply(response, parse_mode=ParseMode.HTML, reply=False)
 
 
+# //-- V3 TEST MEMBERS REMOVE ADMIN-- \\ #
+@dp.message_handler(commands=['ad_rem'])
+async def remove_test_members(message: types.Message):
+    if valid_channel(message.chat.id):
+        icons = V3tests.TEAM_ICONS
+
+        # If @username not specified use sender's @username
+        if '@' in message.text:
+            user = message.text.split('@')[-1]
+        else:
+            user = message.from_user.username
+            if not user or 'None' in user:
+                user = message.from_user.first_name
+
+        # If @username is not found in DB show proper message
+        if user not in db_v3_tests.get_all().keys():
+            response = f"ℹ️ <b>@{user}</b> have no team assigned."
+
+        # If @username exists delete that record
+        else:
+            username = [k for k, v in db_v3_tests.get_all().items() if user in k]
+            team = db_v3_tests.get(username[0])['team']
+            response = f"❗️<b>@{user}</b> removed from {team.capitalize()} {icons[team]} Team!"
+            print(response)
+            db_v3_tests.delete(user)
+
+
 # //-- V3 TEST MEMBERS REMOVE -- \\ #
 @dp.message_handler(commands=['delete', 'del', 'remove'])
 async def remove_test_members(message: types.Message):
