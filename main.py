@@ -158,8 +158,6 @@ async def list_test_members(message: types.Message):
         icons = V3tests.TEAM_ICONS
 
         users = [values for user, values in db_v3_tests.get_all().items() if isinstance(values, dict)]
-        print(users)
-
         teams = {'bees': [], 'rabbits': [], 'owls': []}
 
         for user in users:
