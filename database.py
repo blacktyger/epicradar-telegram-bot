@@ -59,7 +59,7 @@ class DataBase:
         return self._read(key)
 
     def get_all(self):
-        # print(self._read('', get_all=True))
+        print(self._read('', get_all=True))
         return self._read('', get_all=True)
 
     def __repr__(self):
