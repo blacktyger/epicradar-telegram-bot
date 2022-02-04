@@ -135,14 +135,15 @@ async def list_test_members(message: types.Message):
     users = [{user: values} for user, values in db_v3_tests.get_all().items() if isinstance(values, dict)]
     print(users)
 
-    bees = [k for k, v in users if 'bees' in v['team']]
-    owls = [k for k, v in users if 'owls' in v['team']]
-    rabbits = [k for k, v in users if 'rabbits' in v['team']]
+    teams = {'bees': [], 'rabbits': [], 'owls': []}
+
+    for user in users:
+        teams[user['team']].append(user['username'])
 
     response = f"👤 Registered: {len(users)}\n" \
-               f"{icons['bees']}Bees: {len(bees)}\n" \
-               f"{icons['rabbits']}Rabbits: {len(rabbits)}" \
-               f"{icons['owls']}Owls: {len(owls)}"
+               f"{icons['bees']}Bees: {len(teams['bees'])}\n" \
+               f"{icons['rabbits']}Rabbits: {len(teams['rabbits'])}" \
+               f"{icons['owls']}Owls: {len(teams['owls'])}"
 
     await message.reply(response, parse_mode=ParseMode.HTML, reply=False)
 
