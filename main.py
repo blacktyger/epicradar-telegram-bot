@@ -115,7 +115,7 @@ async def register_test_members(message: types.Message):
 
     # If @username is not found in DB create new record
     if user not in db_v3_tests.get_all().keys():
-        db_v3_tests.save(f"{team}_{user}", data)
+        db_v3_tests.save(f"{user}", data)
         response = f"<b>@{user}</b> added to {icons[team]} {team.capitalize()} team!"
 
     # If @username already exists show proper message
