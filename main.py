@@ -17,14 +17,18 @@ __version__ = '0.1.0'
 
 # /------ AIOGRAM BOT SETTINGS ------\ #
 from tools import kill_markdown, get_time
+from database import DataBase
 
+db_v3_tests = DataBase('v3_tests')
 storage = MemoryStorage()
 bot = Bot(token=TOKEN)
 dp = Dispatcher(bot, storage=storage)
 
 
-def mining_queries(msg): return any(cmd in msg.query.split(' ') for cmd in Mining.INLINE_TRIGGERS)
-def vitex_queries(msg): return any(cmd in msg.query.split(' ') for cmd in Vitex.INLINE_TRIGGERS)
+def mining_queries(msg):
+    return any(cmd in msg.query.split(' ') for cmd in Mining.INLINE_TRIGGERS)
+def vitex_queries(msg):
+    return any(cmd in msg.query.split(' ') for cmd in Vitex.INLINE_TRIGGERS)
 
 
 # //-- WELCOME INLINE -- \\ #
@@ -94,14 +98,20 @@ async def inline_vitex(inline_query: InlineQuery):
 
 
 # //-- V3 TEST MEMBERS REGISTER -- \\ #
-@dp.message_handler(commands=['help'])
-async def help_command(message: types.Message):
+@dp.message_handler(commands=['add_to_bees', 'add_to_meerkats' 'add_to_eagles'])
+async def register_test_members(message: types.Message):
     cmd = message.get_command()
-    user = message.from_user.username
-    data = {'time': get_time(), 'cmd': cmd, 'user': user, 'msg_id': message.message_id}
-    print(data)
+    team = cmd.split('_')[-1]
 
-    await message.reply(user, parse_mode=ParseMode.MARKDOWN, reply=False)
+    if '@' in message.text:
+        user = message.text.split('@')[-1]
+    else:
+        user = message.from_user.username
+
+    data = {'time': get_time(), 'user': user, 'team': team,  'msg_id': message.message_id}
+    db_v3_tests.save(f"{team}_{user}", data)
+
+    await message.reply(db_v3_tests.get(f"{team}_{user}"), parse_mode=ParseMode.MARKDOWN, reply=False)
 
 
 @dp.message_handler(lambda message: any(x in message.text.split(' ') for x in Mining.ALGO_PATTERNS))
@@ -110,6 +120,7 @@ async def private_mining(message: types.Message):
     # a = MiningAnswer(icon='⚒', title='mining', message=msg)
     user_query = MiningParser(message=msg)
     response = MiningResponse(user_query)
+
     await message.reply('\n'.join(response.lines), parse_mode=ParseMode.MARKDOWN, reply=False)
 
 
