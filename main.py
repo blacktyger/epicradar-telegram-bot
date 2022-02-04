@@ -111,7 +111,7 @@ async def register_test_members(message: types.Message):
     data = {'time': get_time(), 'user': user, 'team': team,  'msg_id': message.message_id}
     db_v3_tests.save(f"{team}_{user}", data)
 
-    await message.reply(db_v3_tests.get(f"{team}_{user}"), parse_mode=ParseMode.MARKDOWN, reply=False)
+    await message.reply(str(db_v3_tests.get(f"{team}_{user})")), parse_mode=ParseMode.MARKDOWN, reply=False)
 
 
 @dp.message_handler(lambda message: any(x in message.text.split(' ') for x in Mining.ALGO_PATTERNS))
