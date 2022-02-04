@@ -48,7 +48,7 @@ async def inline_mining(inline_query: InlineQuery):
     await bot.answer_inline_query(inline_query.id, results=[item], cache_time=1)
 
 
-# //-- MINING INLINE -- \\ #
+# //-- MINING INLINE --\\ #
 @dp.inline_handler(lambda inline_query: mining_queries(inline_query))
 async def inline_mining(inline_query: InlineQuery):
     result_id: str = hashlib.md5(inline_query.query.encode()).hexdigest()
@@ -65,7 +65,7 @@ async def inline_mining(inline_query: InlineQuery):
     await bot.answer_inline_query(inline_query.id, results=[item], cache_time=1)
 
 
-# //-- VITEX/TRADING INLINE -- \\ #
+# //-- VITEX/TRADING INLINE --\\ #
 @dp.inline_handler(lambda inline_query: vitex_queries(inline_query))
 async def inline_vitex(inline_query: InlineQuery):
     result_id: str = hashlib.md5(inline_query.query.encode()).hexdigest()
