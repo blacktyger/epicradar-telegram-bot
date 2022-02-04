@@ -121,7 +121,7 @@ async def register_test_members(message: types.Message):
     # If @username already exists show proper message
     else:
         team = [k for k, v in db_v3_tests.get_all().items() if user in k]
-        team = team[0].split('_')[0] if team else None
+        team = db_v3_tests.get(team[0])['team']
         response = f"<b>@{user}</b> already in {icons[team]} {team.capitalize()} team!"
 
     await message.reply(response, parse_mode=ParseMode.HTML, reply=False)
