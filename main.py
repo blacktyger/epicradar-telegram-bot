@@ -134,12 +134,12 @@ async def list_test_members(message: types.Message):
     user = message.from_user.username
     icons = {'bees': '🐝', 'rabbits': '🐇', 'owls': '🦉'}
 
-    users = db_v3_tests.get_all().items()
+    users = db_v3_tests.get_all()
     print(users)
 
-    bees = [k for k, v in users if 'bees' in v['team']]
-    owls = [k for k, v in users if 'owls' in v['team']]
-    rabbits = [k for k, v in users if 'rabbits' in v['team']]
+    bees = [k for k in users if 'bees' in k['team']]
+    owls = [k for k in users if 'owls' in k['team']]
+    rabbits = [k for k in users if 'rabbits' in k['team']]
 
     response = f"👤 Registered: {len(users)}\n" \
                f"{icons['bees']}Bees: {len(bees)}\n" \
