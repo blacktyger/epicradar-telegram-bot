@@ -98,10 +98,11 @@ async def inline_vitex(inline_query: InlineQuery):
 
 
 # //-- V3 TEST MEMBERS REGISTER -- \\ #
-@dp.message_handler(commands=['add_to_bees', 'add_to_sloths' 'add_to_owls'])
+@dp.message_handler(commands=['add_to_bees', 'add_to_sloths', 'add_to_owls'])
 async def register_test_members(message: types.Message):
     cmd = message.get_command()
     team = cmd.split('_')[-1]
+    icons = {'bees': '🐝', 'sloths': '🦥', 'owls': '🦉'}
 
     if '@' in message.text:
         user = message.text.split('@')[-1]
@@ -109,12 +110,15 @@ async def register_test_members(message: types.Message):
         user = message.from_user.username
 
     data = {'time': get_time(), 'user': user, 'team': team,  'msg_id': message.message_id}
-    db_v3_tests.save(f"{team}_{user}", data)
 
-    icons = {'bees': '🐝', 'sloths': '🦥', 'owls': '🦉'}
-    response = f"<b>@{user}</b> added to {icons[team]} {team.capitalize()} team!"
+    if not db_v3_tests.get(f"{team}_{user}"):
+        db_v3_tests.save(f"{team}_{user}", data)
+        response = f"<b>@{user}</b> added to {icons[team]} {team.capitalize()} team!"
+    else:
+        team = [k for k, v in db_v3_tests.get_all().items() if user in k]
+        print(team[0].split('_')[0])
+        response = f"<b>@{user}</b> already in {icons[team[0].split('_')[0]]} {team[0].split('_')[0].capitalize()} team!"
 
-    print(db_v3_tests.get(f"{team}_{user}"))
     await message.reply(response, parse_mode=ParseMode.HTML, reply=False)
 
 
