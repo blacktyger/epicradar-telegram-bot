@@ -93,6 +93,13 @@ async def inline_vitex(inline_query: InlineQuery):
     await bot.answer_inline_query(inline_query.id, results=[item], cache_time=100)
 
 
+# //-- V3 TEST MEMBERS REGISTER -- \\ #
+@dp.message_handler(commands=['help'])
+async def help_command(message: types.Message):
+    user = message.from_user.username
+    await message.reply(user, parse_mode=ParseMode.MARKDOWN, reply=False)
+
+
 @dp.message_handler(lambda message: any(x in message.text.split(' ') for x in Mining.ALGO_PATTERNS))
 async def private_mining(message: types.Message):
     msg = message['text']
