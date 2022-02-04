@@ -103,7 +103,10 @@ async def register_test_members(message: types.Message):
     chat_id = message.chat.id
     print(chat_id)
 
-    await message.reply(chat_id, parse_mode=ParseMode.HTML, reply=False)
+    if '1001679402521' in chat_id:
+        await message.reply(chat_id, parse_mode=ParseMode.HTML, reply=False)
+    else:
+        print('dupa')
 
 
 # //-- V3 TEST MEMBERS REGISTER -- \\ #
