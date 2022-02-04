@@ -135,6 +135,9 @@ async def list_test_members(message: types.Message):
     icons = {'bees': '🐝', 'rabbits': '🐇', 'owls': '🦉'}
 
     users = db_v3_tests.get_all()
+    try: del users['created']
+    except Exception: pass
+
     bees = [k for k, v in users if 'bees' in v['team']]
     owls = [k for k, v in users if 'owls' in v['team']]
     rabbits = [k for k, v in users if 'rabbits' in v['team']]
