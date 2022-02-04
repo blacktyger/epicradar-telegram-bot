@@ -130,6 +130,8 @@ async def register_test_members(message: types.Message):
             user = message.text.split('@')[-1]
         else:
             user = message.from_user.username
+            if not user or 'None' in user:
+                user = message.from_user.first_name
 
         # Prepare dict to save to database
         data = {'time': get_time(), 'username': user, 'team': team, 'msg_id': message.message_id}
