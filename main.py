@@ -97,6 +97,15 @@ async def inline_vitex(inline_query: InlineQuery):
     await bot.answer_inline_query(inline_query.id, results=[item], cache_time=100)
 
 
+# //-- GET CHAT ID -- \\ #
+@dp.message_handler(commands=['get_id'])
+async def register_test_members(message: types.Message):
+    chat_id = message.chat.id
+    print(chat_id)
+
+    await message.reply(chat_id, parse_mode=ParseMode.HTML, reply=False)
+
+
 # //-- V3 TEST MEMBERS REGISTER -- \\ #
 @dp.message_handler(commands=['add_to_bees', 'add_to_rabbits', 'add_to_owls'])
 async def register_test_members(message: types.Message):
@@ -141,9 +150,9 @@ async def list_test_members(message: types.Message):
         teams[user['team']].append(user['username'])
 
     response = f"<b>🏆 Registered Volunteers:</b>\n\n" \
-               f"{icons['bees']}Bees: {len(teams['bees'])}\n" \
-               f"{icons['rabbits']}Rabbits: {len(teams['rabbits'])}\n" \
-               f"{icons['owls']}Owls: {len(teams['owls'])}"
+               f"{icons['bees']} Bees: {len(teams['bees'])}\n" \
+               f"{icons['rabbits']} Rabbits: {len(teams['rabbits'])}\n" \
+               f"{icons['owls']} Owls: {len(teams['owls'])}"
 
     await message.reply(response, parse_mode=ParseMode.HTML, reply=False)
 
