@@ -127,6 +127,26 @@ async def register_test_members(message: types.Message):
     await message.reply(response, parse_mode=ParseMode.HTML, reply=False)
 
 
+# //-- V3 TEST MEMBERS LIST -- \\ #
+@dp.message_handler(commands=['teams'])
+async def list_test_members(message: types.Message):
+    cmd = message.get_command()
+    user = message.from_user.username
+    icons = {'bees': '🐝', 'rabbits': '🐇', 'owls': '🦉'}
+
+    users = db_v3_tests.get_all()
+    bees = [k for k, v in users if 'bees' in v['team']]
+    owls = [k for k, v in users if 'owls' in v['team']]
+    rabbits = [k for k, v in users if 'rabbits' in v['team']]
+
+    response = f"👤 Registered: {len(users)}\n" \
+               f"{icons['bees']}Bees: {len(bees)}\n" \
+               f"{icons['rabbits']}Rabbits: {len(rabbits)}" \
+               f"{icons['owls']}Owls: {len(owls)}"
+
+    await message.reply(response, parse_mode=ParseMode.HTML, reply=False)
+
+
 # //-- V3 TEST MEMBERS REMOVE -- \\ #
 @dp.message_handler(commands=['delete', 'del', 'remove'])
 async def remove_test_members(message: types.Message):
