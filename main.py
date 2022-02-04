@@ -140,9 +140,9 @@ async def list_test_members(message: types.Message):
     for user in users:
         teams[user['team']].append(user['username'])
 
-    response = f"👤 Registered: {len(users)}\n" \
+    response = f"👤 Registered volunteers: {len(users)}\n\n" \
                f"{icons['bees']}Bees: {len(teams['bees'])}\n" \
-               f"{icons['rabbits']}Rabbits: {len(teams['rabbits'])}" \
+               f"{icons['rabbits']}Rabbits: {len(teams['rabbits'])}\n" \
                f"{icons['owls']}Owls: {len(teams['owls'])}"
 
     await message.reply(response, parse_mode=ParseMode.HTML, reply=False)
