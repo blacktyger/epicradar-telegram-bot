@@ -130,11 +130,9 @@ async def register_test_members(message: types.Message):
 # //-- V3 TEST MEMBERS LIST -- \\ #
 @dp.message_handler(commands=['teams'])
 async def list_test_members(message: types.Message):
-    cmd = message.get_command()
-    user = message.from_user.username
     icons = {'bees': '🐝', 'rabbits': '🐇', 'owls': '🦉'}
 
-    users = db_v3_tests.get_all()
+    users = [user for user in db_v3_tests.get_all() if 'team' in user.values()]
     print(users)
 
     bees = [k for k in users if 'bees' in k['team']]
