@@ -45,6 +45,12 @@ class DataBase:
                 return db[key]
             else:
                 logger.debug(f'{key} - NOT found in db({self}')
+                return None
+
+    def delete(self, key):
+        with shelve.open(self.file, 'r') as db:
+            del db[key]
+            logger.debug(f'{key} deleted from db({self}')
 
     def save(self, key: str, value):
         self._save(key, value)
@@ -53,7 +59,7 @@ class DataBase:
         return self._read(key)
 
     def get_all(self):
-        print(self._read('', get_all=True))
+        # print(self._read('', get_all=True))
         return self._read('', get_all=True)
 
     def __repr__(self):

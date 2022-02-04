@@ -143,7 +143,7 @@ async def remove_test_members(message: types.Message):
         username = [k for k, v in db_v3_tests.get_all().items() if user in k]
         team = db_v3_tests.get(username[0])['team']
         response = f"❗️<b>@{user}</b> removed from {team.capitalize()} {icons[team]} Team!"
-        db_v3_tests.save(user, None)
+        db_v3_tests.delete(user)
 
     await message.reply(response, parse_mode=ParseMode.HTML, reply=False)
 
