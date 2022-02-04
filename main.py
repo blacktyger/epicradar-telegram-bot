@@ -127,7 +127,8 @@ async def register_test_members(message: types.Message):
 
         # If @username not specified use sender's @username
         if '@' in message.text:
-            user = message.text.split('@')[-1]
+            if V3tests.ADMIN_ID in str(message.from_user.id):
+                user = message.text.split('@')[-1]
         else:
             user = message.from_user.username
             if not user or 'None' in user:
@@ -177,16 +178,16 @@ async def list_test_members(message: types.Message):
 async def remove_test_members(message: types.Message):
     if valid_channel(message.chat.id):
         icons = V3tests.TEAM_ICONS
+        user = message.from_user.username
 
-        # If @username not specified use sender's @username
-        if '@' in message.text:
-            user = message.text.split('@')[-1]
-        else:
-            user = message.from_user.username
-            if not user or 'None' in user:
-                user = message.from_user.first_name
+        if not user or 'None' in user:
+            user = message.from_user.first_name
 
-        # If @username is not found in DB show proper message
+        # If admin is sending this to add other user
+        if V3tests.ADMIN_ID in str(message.from_user.id):
+            if '@' in message.text:
+                user = message.text.split('@')[-1]
+
         if user not in db_v3_tests.get_all().keys():
             response = f"ℹ️ <b>@{user}</b> have no team assigned."
 
