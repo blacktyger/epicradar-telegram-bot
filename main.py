@@ -34,14 +34,57 @@ def vitex_queries(msg):
 
 
 def valid_channel(_id):
+    """Validate channel ID before sending"""
     _id = str(_id).split('-')[-1]
     return _id in V3tests.TESTERS_CHANNEL_ID \
-           or _id in V3tests.TEST_CHANNEL_ID
+           or _id in V3tests.TEST_CHANNEL_ID \
+           or _id in V3tests.TEST_DEV_CHANNEL_ID
+
+
+def get_teams():
+    """Return dict with all members according tot their teams"""
+    users = [values for user, values in db_v3_tests.get_all().items() if isinstance(values, dict)]
+    teams = {'bees': [], 'rabbits': [], 'owls': []}
+
+    for user in users:
+        teams[user['team']].append(user)
+
+    return teams
+
+
+def get_username(message: types.Message) -> dict:
+    """Return dict with User username and User mention string"""
+    mentioned = len(message.entities) == 2
+
+    if mentioned:
+        # Return user mentioned by sender
+        user = message.entities[-1].user
+
+        if user:
+            if user.username:
+                username = user.username
+                mention = user.mention
+            else:
+                username = user.first_name
+                mention = user.get_mention(username)
+        else:
+            username = message.parse_entities().split('@')[-1]
+            mention = message.parse_entities().split(' ')[-1]
+
+    else:
+        # Return message sender user
+        if message.from_user.username:
+            username = message.from_user.username
+        else:
+            username = message.from_user.first_name
+        mention = message.from_user.mention
+
+    return {'username': username, 'mention': mention}
 
 
 # //-- WELCOME INLINE -- \\ #
 @dp.inline_handler(lambda inline_query: inline_query.query == '')
-async def inline_mining(inline_query: InlineQuery):
+async def inline_welcome(inline_query: InlineQuery):
     result_id: str = hashlib.md5(inline_query.query.encode()).hexdigest()
     thumb_url = "https://i.ibb.co/Rgx9hv2/radar1.png"
     title = "EPIC-RADAR BOT COMMANDS:"
@@ -105,64 +148,79 @@ async def inline_vitex(inline_query: InlineQuery):
     await bot.answer_inline_query(inline_query.id, results=[item], cache_time=100)
 
 
-# //-- GET CHAT ID -- \\ #
-@dp.message_handler(commands=['get_id'])
-async def register_test_members(message: types.Message):
-    chat_id = message.chat.id
-    print(chat_id)
+# //-- MINING PRIVATE -- \\ #
+@dp.message_handler(lambda message: any(x in message.text.split(' ') for x in Mining.ALGO_PATTERNS))
+async def private_mining(message: types.Message):
+    msg = message['text']
+    user_query = MiningParser(message=msg)
+    response = MiningResponse(user_query)
 
-    if '1001679402521' in str(chat_id):
-        await message.reply(chat_id, parse_mode=ParseMode.HTML, reply=False)
-    else:
-        print('dupa')
+    await message.reply(response.chat_response, parse_mode=ParseMode.MARKDOWN, reply=False)
 
 
-# //-- V3 TEST MEMBERS REGISTER -- \\ #
+# --------------------#
+#   V3 TEST SECTION   #
+# --------------------#
+
+
+# //-- MEMBERS REGISTER -- \\ #
 @dp.message_handler(commands=['add_to_bees', 'add_to_rabbits', 'add_to_owls'])
 async def register_test_members(message: types.Message):
     if valid_channel(message.chat.id):
         cmd = message.get_command()
         team = cmd.split('_')[-1]
         icons = V3tests.TEAM_ICONS
-
-        # If @username not specified use sender's @username
-        if '@' in message.text:
-            if V3tests.ADMIN_ID in str(message.from_user.id):
-                user = message.text.split('@')[-1]
-        else:
-            user = message.from_user.username
-            if not user or 'None' in user:
-                user = message.from_user.first_name
+        username, mention = get_username(message).values()
 
         # Prepare dict to save to database
-        data = {'time': get_time(), 'username': user, 'team': team, 'msg_id': message.message_id}
+        data = {'username': username,
+                'team': team,
+                'time': get_time(),
+                'msg_id': message.message_id,
+                'mention': mention}
 
-        # If @username is not found in DB create new record
-        if user not in db_v3_tests.get_all().keys():
-            db_v3_tests.save(f"{user}", data)
-            response = f"<b>@{user}</b> added to {team.capitalize()} {icons[team]} Team!"
+        # If user is not found in DB create new record
+        if username not in db_v3_tests.get_all().keys():
+            db_v3_tests.save(f"{username}", data)
+            response = f"*{mention}* added to {team.capitalize()} {icons[team]} Team\!"
 
         # If @username already exists show proper message
         else:
-            team = [k for k, v in db_v3_tests.get_all().items() if user in k]
+            team = [k for k, v in db_v3_tests.get_all().items() if username in k]
             team = db_v3_tests.get(team[0])['team']
-            response = f"<b>@{user}</b> already in {team.capitalize()} {icons[team]} Team!"
+            response = f"*{mention}* already in {team.capitalize()} {icons[team]} Team\!"
+
+        await message.reply(response, parse_mode=ParseMode.MARKDOWN_V2, reply=False)
+
+
+# //-- MEMBERS REMOVE -- \\ #
+@dp.message_handler(commands=['delete', 'del', 'remove'])
+async def remove_test_members(message: types.Message):
+    if valid_channel(message.chat.id):
+        username, mention = get_username(message).values()
+        icons = V3tests.TEAM_ICONS
+
+        # If @username is not found in DB show proper message
+        if username not in db_v3_tests.get_all().keys():
+            response = f"ℹ️ {mention} have no team assigned."
+
+        # If @username exists delete that record
+        else:
+            username_ = [k for k, v in db_v3_tests.get_all().items() if username in k]
+            team = db_v3_tests.get(username_[0])['team']
+            db_v3_tests.delete(username)
+            response = f"❗️{mention} removed from {team.capitalize()} {icons[team]} Team!"
 
         await message.reply(response, parse_mode=ParseMode.HTML, reply=False)
 
 
-# //-- V3 TEST MEMBERS LIST -- \\ #
+# //-- MEMBERS LIST -- \\ #
 @dp.message_handler(commands=['teams'])
 async def list_test_members(message: types.Message):
     if valid_channel(message.chat.id):
         icons = V3tests.TEAM_ICONS
-
-        users = [values for user, values in db_v3_tests.get_all().items() if isinstance(values, dict)]
-        teams = {'bees': [], 'rabbits': [], 'owls': []}
-
-        for user in users:
-            teams[user['team']].append(user['username'])
-            print(user)
+        teams = get_teams()
+        print(teams)
 
         response = f"<b>🏆 Registered Volunteers:</b>\n\n" \
                    f"{icons['bees']} Bees: {len(teams['bees'])}\n" \
@@ -172,62 +230,63 @@ async def list_test_members(message: types.Message):
         await message.reply(response, parse_mode=ParseMode.HTML, reply=False)
 
 
-# //-- V3 TEST MEMBERS REMOVE ADMIN-- \\ #
+# //-- TAG TEAMS -- \\ #
+@dp.message_handler(commands=['tag', 'all'])
+async def call_test_members(message: types.Message):
+    if valid_channel(message.chat.id):
+        teams = get_teams()
+        tagged = message.get_command().split('_')[1]
+
+        if tagged == 'all':
+            response_ = []
+            for team in teams.values():
+                for user in team:
+                    response_.append(user['mention'].replace("'", ''))
+            response = ', '.join(response_)
+
+        else:
+            response = ', '.join([user['mention'] for user in teams[tagged]])
+
+        if response:
+            print('TAGGING: ', response)
+            await message.reply(response, parse_mode=ParseMode.MARKDOWN, reply=False)
+
+
+# //-- USERS LIST (PRINT) -- \\ #
+@dp.message_handler(commands=['ad_list'])
+async def list_test_members_admin(message: types.Message):
+    if valid_channel(message.chat.id):
+        users = [values for user, values in db_v3_tests.get_all().items() if isinstance(values, dict)]
+        for user in users:
+            print(user)
+        await bot.delete_message(message.chat.id, message.message_id)
+
+
+# //-- V3 TEST MEMBERS REMOVE ADMIN (PRINT) -- \\ #
 @dp.message_handler(commands=['ad_rem'])
-async def remove_test_members(message: types.Message):
+async def remove_test_members_admin(message: types.Message):
     if valid_channel(message.chat.id):
         icons = V3tests.TEAM_ICONS
-        user = message.from_user.username
+        username, mention = get_username(message).values()
 
-        if not user or 'None' in user:
-            user = message.from_user.first_name
+        if username not in db_v3_tests.get_all().keys():
+            response = f"ℹ️ {mention} have no team assigned."
 
-        # If admin is sending this to add other user
-        if V3tests.ADMIN_ID in str(message.from_user.id):
-            if '@' in message.text:
-                user = message.text.split('@')[-1]
-
-        if user not in db_v3_tests.get_all().keys():
-            response = f"ℹ️ <b>@{user}</b> have no team assigned."
-
-        # If @username exists delete that record
         else:
-            username = [k for k, v in db_v3_tests.get_all().items() if user in k]
-            team = db_v3_tests.get(username[0])['team']
-            response = f"❗️<b>@{user}</b> removed from {team.capitalize()} {icons[team]} Team!"
-            print(response)
-            db_v3_tests.delete(user)
+            username_ = [k for k, v in db_v3_tests.get_all().items() if username in k]
+            team = db_v3_tests.get(username_[0])['team']
+            response = f"❗️*{mention}* removed from {team.capitalize()} {icons[team]} Team!"
+            db_v3_tests.delete(username)
+
+        await bot.delete_message(message.chat.id, message.message_id)
+        print(response)
 
 
-# //-- V3 TEST MEMBERS REMOVE -- \\ #
-@dp.message_handler(commands=['delete', 'del', 'remove'])
-async def remove_test_members(message: types.Message):
-    if valid_channel(message.chat.id):
-        user = message.from_user.username
-        icons = V3tests.TEAM_ICONS
-
-        # If @username is not found in DB show proper message
-        if user not in db_v3_tests.get_all().keys():
-            response = f"ℹ️ <b>@{user}</b> have no team assigned."
-
-        # If @username exists delete that record
-        else:
-            username = [k for k, v in db_v3_tests.get_all().items() if user in k]
-            team = db_v3_tests.get(username[0])['team']
-            response = f"❗️<b>@{user}</b> removed from {team.capitalize()} {icons[team]} Team!"
-            db_v3_tests.delete(user)
-
-        await message.reply(response, parse_mode=ParseMode.HTML, reply=False)
-
-
-@dp.message_handler(lambda message: any(x in message.text.split(' ') for x in Mining.ALGO_PATTERNS))
-async def private_mining(message: types.Message):
-    msg = message['text']
-    # a = MiningAnswer(icon='⚒', title='mining', message=msg)
-    user_query = MiningParser(message=msg)
-    response = MiningResponse(user_query)
-
-    await message.reply('\n'.join(response.lines), parse_mode=ParseMode.MARKDOWN, reply=False)
+# //-- GET CHAT ID -- \\ #
+@dp.message_handler(commands=['get_id'])
+async def get_chat_ID(message: types.Message):
+    chat_id = message.chat.id
+    await message.reply(chat_id, parse_mode=ParseMode.HTML, reply=False)
 
 
 # /------ START MAIN LOOP ------\ #

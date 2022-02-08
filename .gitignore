@@ -1,1 +1,9 @@
 /keys.py
+.idea/
+__pycache__/
+keys.py
+main.log
+parsers/__pycache__/vitex.cpython-39.pyc
+venv/
+.gitignore
+/db/
