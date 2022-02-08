@@ -235,7 +235,7 @@ async def list_test_members(message: types.Message):
 async def call_test_members(message: types.Message):
     if valid_channel(message.chat.id):
         teams = get_teams()
-        tagged = message.get_command().split('_')[1]
+        tagged = message.get_command()
 
         if tagged == 'all':
             response_ = []
@@ -245,7 +245,8 @@ async def call_test_members(message: types.Message):
             response = ', '.join(response_)
 
         else:
-            response = ', '.join([user['mention'] for user in teams[tagged]])
+            tag = message.get_args()
+            response = ', '.join([user['mention'] for user in teams[tag]])
 
         if response:
             print('TAGGING: ', response)
@@ -293,3 +294,18 @@ async def get_chat_ID(message: types.Message):
 if __name__ == '__main__':
     logger.info("starting")
     executor.start_polling(dp, skip_updates=True)
+
+"""
+{'time': '05/02 18:53', 'username': 'Izlo_ECC', 'team': 'rabbits', 'msg_id': 2427}
+{'time': '04/02 15:28', 'username': 'Denis', 'team': 'bees', 'msg_id': 1241}
+{'time': '07/02 16:36', 'username': 'Rwina_Freeman', 'team': 'owls', 'msg_id': 2441}
+{'time': '04/02 15:10', 'username': 'thistlefreeman', 'team': 'owls', 'msg_id': 2397}
+{'time': '04/02 15:12', 'username': 'Ric123Fer', 'team': 'rabbits', 'msg_id': 2405}
+{'time': '04/02 15:28', 'username': 'Zeke_xz', 'team': 'bees', 'msg_id': 2420}
+{'time': '08/02 14:10', 'username': 'K3V1NC', 'team': 'rabbits', 'msg_id': 2473}
+{'time': '04/02 15:28', 'username': 'xHTx89', 'team': 'rabbits', 'msg_id': 2418}
+{'time': '04/02 15:00', 'username': 'blacktyg3r', 'team': 'bees', 'msg_id': 2390}
+{'time': '04/02 15:14', 'username': 'Thomas', 'team': 'bees', 'msg_id': 2411}
+{'time': '07/02 13:01', 'username': 'maxfreeman4', 'team': 'owls', 'msg_id': 2437}
+{'time': '08/02 11:41', 'username': 'fyby0810', 'team': 'owls', 'msg_id': 2466}
+"""
