@@ -1,8 +1,14 @@
+import datetime
 import time
 
 
 def kill_markdown(string):
     return string.replace('*', '')
+
+
+def get_time(pattern="%d/%m %H:%M"):
+    """Return datetime object as string"""
+    return datetime.datetime.now().strftime(pattern)
 
 
 def timeit(method):

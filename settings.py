@@ -129,3 +129,9 @@ class Blockchain:
             return [4.0, 0.1776, 3.8224, 2275200]
         elif 2023201 < height <= 2275200:
             return [2.0, 0.0888, 1.9112]
+
+class V3tests:
+    TESTERS_CHANNEL_ID = '1001679402521'
+    TEST_CHANNEL_ID = '607280227'
+    TEAM_ICONS = {'bees': '🐝', 'rabbits': '🐇', 'owls': '🦉'}
+    ADMIN_ID = '803516752'

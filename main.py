@@ -8,7 +8,7 @@ from responses.mining import MiningResponse
 # from responses.vitex import VitexResponse
 from parsers.mining import MiningParser
 from parsers.vitex import VitexParser
-from settings import Vitex, Mining
+from settings import Vitex, Mining, V3tests
 from logger_ import logger
 from keys import TOKEN
 
@@ -16,15 +16,27 @@ from keys import TOKEN
 __version__ = '0.1.0'
 
 # /------ AIOGRAM BOT SETTINGS ------\ #
-from tools import kill_markdown
+from tools import kill_markdown, get_time
+from database import DataBase
 
+db_v3_tests = DataBase('v3_tests')
 storage = MemoryStorage()
 bot = Bot(token=TOKEN)
 dp = Dispatcher(bot, storage=storage)
 
 
-def mining_queries(msg): return any(cmd in msg.query.split(' ') for cmd in Mining.INLINE_TRIGGERS)
-def vitex_queries(msg): return any(cmd in msg.query.split(' ') for cmd in Vitex.INLINE_TRIGGERS)
+def mining_queries(msg):
+    return any(cmd in msg.query.split(' ') for cmd in Mining.INLINE_TRIGGERS)
+
+
+def vitex_queries(msg):
+    return any(cmd in msg.query.split(' ') for cmd in Vitex.INLINE_TRIGGERS)
+
+
+def valid_channel(_id):
+    _id = str(_id).split('-')[-1]
+    return _id in V3tests.TESTERS_CHANNEL_ID \
+           or _id in V3tests.TEST_CHANNEL_ID
 
 
 # //-- WELCOME INLINE -- \\ #
@@ -93,12 +105,128 @@ async def inline_vitex(inline_query: InlineQuery):
     await bot.answer_inline_query(inline_query.id, results=[item], cache_time=100)
 
 
+# //-- GET CHAT ID -- \\ #
+@dp.message_handler(commands=['get_id'])
+async def register_test_members(message: types.Message):
+    chat_id = message.chat.id
+    print(chat_id)
+
+    if '1001679402521' in str(chat_id):
+        await message.reply(chat_id, parse_mode=ParseMode.HTML, reply=False)
+    else:
+        print('dupa')
+
+
+# //-- V3 TEST MEMBERS REGISTER -- \\ #
+@dp.message_handler(commands=['add_to_bees', 'add_to_rabbits', 'add_to_owls'])
+async def register_test_members(message: types.Message):
+    if valid_channel(message.chat.id):
+        cmd = message.get_command()
+        team = cmd.split('_')[-1]
+        icons = V3tests.TEAM_ICONS
+
+        # If @username not specified use sender's @username
+        if '@' in message.text:
+            if V3tests.ADMIN_ID in str(message.from_user.id):
+                user = message.text.split('@')[-1]
+        else:
+            user = message.from_user.username
+            if not user or 'None' in user:
+                user = message.from_user.first_name
+
+        # Prepare dict to save to database
+        data = {'time': get_time(), 'username': user, 'team': team, 'msg_id': message.message_id}
+
+        # If @username is not found in DB create new record
+        if user not in db_v3_tests.get_all().keys():
+            db_v3_tests.save(f"{user}", data)
+            response = f"<b>@{user}</b> added to {team.capitalize()} {icons[team]} Team!"
+
+        # If @username already exists show proper message
+        else:
+            team = [k for k, v in db_v3_tests.get_all().items() if user in k]
+            team = db_v3_tests.get(team[0])['team']
+            response = f"<b>@{user}</b> already in {team.capitalize()} {icons[team]} Team!"
+
+        await message.reply(response, parse_mode=ParseMode.HTML, reply=False)
+
+
+# //-- V3 TEST MEMBERS LIST -- \\ #
+@dp.message_handler(commands=['teams'])
+async def list_test_members(message: types.Message):
+    if valid_channel(message.chat.id):
+        icons = V3tests.TEAM_ICONS
+
+        users = [values for user, values in db_v3_tests.get_all().items() if isinstance(values, dict)]
+        teams = {'bees': [], 'rabbits': [], 'owls': []}
+
+        for user in users:
+            teams[user['team']].append(user['username'])
+            print(user)
+
+        response = f"<b>🏆 Registered Volunteers:</b>\n\n" \
+                   f"{icons['bees']} Bees: {len(teams['bees'])}\n" \
+                   f"{icons['rabbits']} Rabbits: {len(teams['rabbits'])}\n" \
+                   f"{icons['owls']} Owls: {len(teams['owls'])}"
+
+        await message.reply(response, parse_mode=ParseMode.HTML, reply=False)
+
+
+# //-- V3 TEST MEMBERS REMOVE ADMIN-- \\ #
+@dp.message_handler(commands=['ad_rem'])
+async def remove_test_members(message: types.Message):
+    if valid_channel(message.chat.id):
+        icons = V3tests.TEAM_ICONS
+        user = message.from_user.username
+
+        if not user or 'None' in user:
+            user = message.from_user.first_name
+
+        # If admin is sending this to add other user
+        if V3tests.ADMIN_ID in str(message.from_user.id):
+            if '@' in message.text:
+                user = message.text.split('@')[-1]
+
+        if user not in db_v3_tests.get_all().keys():
+            response = f"ℹ️ <b>@{user}</b> have no team assigned."
+
+        # If @username exists delete that record
+        else:
+            username = [k for k, v in db_v3_tests.get_all().items() if user in k]
+            team = db_v3_tests.get(username[0])['team']
+            response = f"❗️<b>@{user}</b> removed from {team.capitalize()} {icons[team]} Team!"
+            print(response)
+            db_v3_tests.delete(user)
+
+
+# //-- V3 TEST MEMBERS REMOVE -- \\ #
+@dp.message_handler(commands=['delete', 'del', 'remove'])
+async def remove_test_members(message: types.Message):
+    if valid_channel(message.chat.id):
+        user = message.from_user.username
+        icons = V3tests.TEAM_ICONS
+
+        # If @username is not found in DB show proper message
+        if user not in db_v3_tests.get_all().keys():
+            response = f"ℹ️ <b>@{user}</b> have no team assigned."
+
+        # If @username exists delete that record
+        else:
+            username = [k for k, v in db_v3_tests.get_all().items() if user in k]
+            team = db_v3_tests.get(username[0])['team']
+            response = f"❗️<b>@{user}</b> removed from {team.capitalize()} {icons[team]} Team!"
+            db_v3_tests.delete(user)
+
+        await message.reply(response, parse_mode=ParseMode.HTML, reply=False)
+
+
 @dp.message_handler(lambda message: any(x in message.text.split(' ') for x in Mining.ALGO_PATTERNS))
 async def private_mining(message: types.Message):
     msg = message['text']
     # a = MiningAnswer(icon='⚒', title='mining', message=msg)
     user_query = MiningParser(message=msg)
     response = MiningResponse(user_query)
+
     await message.reply('\n'.join(response.lines), parse_mode=ParseMode.MARKDOWN, reply=False)
 
 
