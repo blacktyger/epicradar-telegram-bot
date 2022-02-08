@@ -235,9 +235,9 @@ async def list_test_members(message: types.Message):
 async def call_test_members(message: types.Message):
     if valid_channel(message.chat.id):
         teams = get_teams()
-        tagged = message.get_command()
+        tagged = message.get_command(pure=True)
 
-        if ('all' or 'call') in tagged:
+        if tagged in 'all':
             response_ = []
             for team in teams.values():
                 for user in team:
