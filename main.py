@@ -182,15 +182,15 @@ async def register_test_members(message: types.Message):
         # If user is not found in DB create new record
         if username not in db_v3_tests.get_all().keys():
             db_v3_tests.save(f"{username}", data)
-            response = f"*{mention}* added to {team.capitalize()} {icons[team]} Team!"
+            response = f"*{mention}* added to {team.capitalize()} {icons[team]} Team\!"
 
         # If @username already exists show proper message
         else:
             team = [k for k, v in db_v3_tests.get_all().items() if username in k]
             team = db_v3_tests.get(team[0])['team']
-            response = f"*{mention}* already in {team.capitalize()} {icons[team]} Team!"
+            response = f"*{mention}* already in {team.capitalize()} {icons[team]} Team\!"
 
-        await message.reply(response, parse_mode=ParseMode.MARKDOWN, reply=False)
+        await message.reply(response, parse_mode=ParseMode.MARKDOWN_V2, reply=False)
 
 
 # //-- MEMBERS REMOVE -- \\ #
@@ -260,8 +260,8 @@ async def list_test_members_admin(message: types.Message):
         users = [values for user, values in db_v3_tests.get_all().items() if isinstance(values, dict)]
         for user in users:
             print(user)
-        await bot.delete_message(message.chat.id, message.message_id)
-
+        try: await bot.delete_message(message.chat.id, message.message_id)
+        except Exception: pass
 
 # //-- V3 TEST MEMBERS REMOVE ADMIN (PRINT) -- \\ #
 @dp.message_handler(commands=['ad_rem'])
@@ -279,7 +279,8 @@ async def remove_test_members_admin(message: types.Message):
             response = f"❗️*{mention}* removed from {team.capitalize()} {icons[team]} Team!"
             db_v3_tests.delete(username)
 
-        await bot.delete_message(message.chat.id, message.message_id)
+        try: await bot.delete_message(message.chat.id, message.message_id)
+        except Exception: pass
         print(response)
 
 
