@@ -190,7 +190,7 @@ async def register_test_members(message: types.Message):
             team = db_v3_tests.get(team[0])['team']
             response = f"*{mention}* already in {team.capitalize()} {icons[team]} Team\!"
 
-        await message.reply(response, parse_mode=ParseMode.MARKDOWN_V2, reply=False)
+        await message.reply(response.replace('_', '\_'), parse_mode=ParseMode.MARKDOWN_V2, reply=False)
 
 
 # //-- MEMBERS REMOVE -- \\ #
@@ -209,9 +209,9 @@ async def remove_test_members(message: types.Message):
             username_ = [k for k, v in db_v3_tests.get_all().items() if username in k]
             team = db_v3_tests.get(username_[0])['team']
             db_v3_tests.delete(username)
-            response = f"❗️{mention} removed from {team.capitalize()} {icons[team]} Team!"
+            response = f"❗️{mention} removed from {team.capitalize()} {icons[team]} Team\!"
 
-        await message.reply(response, parse_mode=ParseMode.HTML, reply=False)
+        await message.reply(response.replace('_', '\_'), parse_mode=ParseMode.MARKDOWN_V2, reply=False)
 
 
 # //-- MEMBERS LIST -- \\ #
@@ -231,29 +231,29 @@ async def list_test_members(message: types.Message):
 
 
 # //-- TAG TEAMS -- \\ #
-@dp.message_handler(commands=['tag', 'all'])
+@dp.message_handler(commands=['tag', 'all', 'call'])
 async def call_test_members(message: types.Message):
     if valid_channel(message.chat.id):
         teams = get_teams()
         tagged = message.get_command()
 
-        if tagged == 'all':
+        if ('all' or 'call') in tagged:
             response_ = []
             for team in teams.values():
                 for user in team:
-                    response_.append(user['mention'].replace("'", ''))
-            response = ', '.join(response_)
+                    response_.append(user['mention'])
+            response = ' '.join(response_)
 
         else:
             tag = message.get_args()
-            response = ', '.join([user['mention'] for user in teams[tag]])
+            response = ' '.join([user['mention'] for user in teams[tag]])
 
         if response:
             print('TAGGING: ', response)
-            await message.reply(response, parse_mode=ParseMode.MARKDOWN, reply=False)
+            await message.reply(response.replace('_', '\_'), parse_mode=ParseMode.MARKDOWN_V2, reply=False)
 
 
-# //-- USERS LIST (PRINT) -- \\ #
+# //-- ADMIN USERS LIST (PRINT) -- \\ #
 @dp.message_handler(commands=['ad_list'])
 async def list_test_members_admin(message: types.Message):
     if valid_channel(message.chat.id):
@@ -263,7 +263,7 @@ async def list_test_members_admin(message: types.Message):
         try: await bot.delete_message(message.chat.id, message.message_id)
         except Exception: pass
 
-# //-- V3 TEST MEMBERS REMOVE ADMIN (PRINT) -- \\ #
+# //-- ADMIN MEMBERS REMOVE (PRINT) -- \\ #
 @dp.message_handler(commands=['ad_rem'])
 async def remove_test_members_admin(message: types.Message):
     if valid_channel(message.chat.id):
@@ -284,7 +284,7 @@ async def remove_test_members_admin(message: types.Message):
         print(response)
 
 
-# //-- GET CHAT ID -- \\ #
+# //-- ADMIN GET CHAT ID -- \\ #
 @dp.message_handler(commands=['get_id'])
 async def get_chat_ID(message: types.Message):
     chat_id = message.chat.id
