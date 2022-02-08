@@ -133,5 +133,6 @@ class Blockchain:
 class V3tests:
     TESTERS_CHANNEL_ID = '1001679402521'
     TEST_CHANNEL_ID = '607280227'
+    TEST_DEV_CHANNEL_ID = '803516752'
     TEAM_ICONS = {'bees': '🐝', 'rabbits': '🐇', 'owls': '🦉'}
     ADMIN_ID = '803516752'
