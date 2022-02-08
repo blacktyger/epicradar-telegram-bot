@@ -9,16 +9,15 @@ from responses.mining import MiningResponse
 from parsers.mining import MiningParser
 from parsers.vitex import VitexParser
 from settings import Vitex, Mining, V3tests
+from database import DataBase
 from logger_ import logger
+from tools import get_username, get_teams, valid_channel, get_time
 from keys import TOKEN
 
 
 __version__ = '0.1.0'
 
 # /------ AIOGRAM BOT SETTINGS ------\ #
-from tools import kill_markdown, get_time
-from database import DataBase
-
 db_v3_tests = DataBase('v3_tests')
 storage = MemoryStorage()
 bot = Bot(token=TOKEN)
@@ -31,55 +30,6 @@ def mining_queries(msg):
 
 def vitex_queries(msg):
     return any(cmd in msg.query.split(' ') for cmd in Vitex.INLINE_TRIGGERS)
-
-
-def valid_channel(_id):
-    """Validate channel ID before sending"""
-    _id = str(_id).split('-')[-1]
-    return _id in V3tests.TESTERS_CHANNEL_ID \
-           or _id in V3tests.TEST_CHANNEL_ID \
-           or _id in V3tests.TEST_DEV_CHANNEL_ID
-
-
-def get_teams():
-    """Return dict with all members according tot their teams"""
-    users = [values for user, values in db_v3_tests.get_all().items() if isinstance(values, dict)]
-    teams = {'bees': [], 'rabbits': [], 'owls': []}
-
-    for user in users:
-        teams[user['team']].append(user)
-
-    return teams
-
-
-def get_username(message: types.Message) -> dict:
-    """Return dict with User username and User mention string"""
-    mentioned = len(message.entities) == 2
-
-    if mentioned:
-        # Return user mentioned by sender
-        user = message.entities[-1].user
-
-        if user:
-            if user.username:
-                username = user.username
-                mention = user.mention
-            else:
-                username = user.first_name
-                mention = user.get_mention(username)
-        else:
-            username = message.parse_entities().split('@')[-1]
-            mention = message.parse_entities().split(' ')[-1]
-
-    else:
-        # Return message sender user
-        if message.from_user.username:
-            username = message.from_user.username
-        else:
-            username = message.from_user.first_name
-        mention = message.from_user.mention
-
-    return {'username': username, 'mention': mention}
 
 
 # //-- WELCOME INLINE -- \\ #
@@ -166,7 +116,7 @@ async def private_mining(message: types.Message):
 # //-- MEMBERS REGISTER -- \\ #
 @dp.message_handler(commands=['add_to_bees', 'add_to_rabbits', 'add_to_owls'])
 async def register_test_members(message: types.Message):
-    if valid_channel(message.chat.id):
+    if valid_channel(message.chat.id, V3tests):
         cmd = message.get_command()
         team = cmd.split('_')[-1]
         icons = V3tests.TEAM_ICONS
@@ -196,13 +146,13 @@ async def register_test_members(message: types.Message):
 # //-- MEMBERS REMOVE -- \\ #
 @dp.message_handler(commands=['delete', 'del', 'remove'])
 async def remove_test_members(message: types.Message):
-    if valid_channel(message.chat.id):
+    if valid_channel(message.chat.id, V3tests):
         username, mention = get_username(message).values()
         icons = V3tests.TEAM_ICONS
 
         # If @username is not found in DB show proper message
         if username not in db_v3_tests.get_all().keys():
-            response = f"ℹ️ {mention} have no team assigned."
+            response = f"ℹ️ {mention} have no team assigned\."
 
         # If @username exists delete that record
         else:
@@ -211,15 +161,16 @@ async def remove_test_members(message: types.Message):
             db_v3_tests.delete(username)
             response = f"❗️{mention} removed from {team.capitalize()} {icons[team]} Team\!"
 
+        print(response)
         await message.reply(response.replace('_', '\_'), parse_mode=ParseMode.MARKDOWN_V2, reply=False)
 
 
 # //-- MEMBERS LIST -- \\ #
 @dp.message_handler(commands=['teams'])
 async def list_test_members(message: types.Message):
-    if valid_channel(message.chat.id):
+    if valid_channel(message.chat.id, V3tests):
         icons = V3tests.TEAM_ICONS
-        teams = get_teams()
+        teams = get_teams(database=db_v3_tests)
         print(teams)
 
         response = f"<b>🏆 Registered Volunteers:</b>\n\n" \
@@ -233,8 +184,9 @@ async def list_test_members(message: types.Message):
 # //-- TAG TEAMS -- \\ #
 @dp.message_handler(commands=['tag', 'all', 'call'])
 async def call_test_members(message: types.Message):
-    if valid_channel(message.chat.id):
-        teams = get_teams()
+    response = None
+    if valid_channel(message.chat.id, V3tests):
+        teams = get_teams(database=db_v3_tests)
         tagged = message.get_command(pure=True)
 
         if tagged in 'all':
@@ -246,7 +198,8 @@ async def call_test_members(message: types.Message):
 
         else:
             tag = message.get_args()
-            response = ' '.join([user['mention'] for user in teams[tag]])
+            if tag in teams.keys():
+                response = ' '.join([user['mention'] for user in teams[tag]])
 
         if response:
             print('TAGGING: ', response)
@@ -256,7 +209,7 @@ async def call_test_members(message: types.Message):
 # //-- ADMIN USERS LIST (PRINT) -- \\ #
 @dp.message_handler(commands=['ad_list'])
 async def list_test_members_admin(message: types.Message):
-    if valid_channel(message.chat.id):
+    if valid_channel(message.chat.id, V3tests):
         users = [values for user, values in db_v3_tests.get_all().items() if isinstance(values, dict)]
         for user in users:
             print(user)
@@ -266,7 +219,7 @@ async def list_test_members_admin(message: types.Message):
 # //-- ADMIN MEMBERS REMOVE (PRINT) -- \\ #
 @dp.message_handler(commands=['ad_rem'])
 async def remove_test_members_admin(message: types.Message):
-    if valid_channel(message.chat.id):
+    if valid_channel(message.chat.id, V3tests):
         icons = V3tests.TEAM_ICONS
         username, mention = get_username(message).values()
 
@@ -295,18 +248,3 @@ async def get_chat_ID(message: types.Message):
 if __name__ == '__main__':
     logger.info("starting")
     executor.start_polling(dp, skip_updates=True)
-
-"""
-{'time': '05/02 18:53', 'username': 'Izlo_ECC', 'team': 'rabbits', 'msg_id': 2427}
-{'time': '04/02 15:28', 'username': 'Denis', 'team': 'bees', 'msg_id': 1241}
-{'time': '07/02 16:36', 'username': 'Rwina_Freeman', 'team': 'owls', 'msg_id': 2441}
-{'time': '04/02 15:10', 'username': 'thistlefreeman', 'team': 'owls', 'msg_id': 2397}
-{'time': '04/02 15:12', 'username': 'Ric123Fer', 'team': 'rabbits', 'msg_id': 2405}
-{'time': '04/02 15:28', 'username': 'Zeke_xz', 'team': 'bees', 'msg_id': 2420}
-{'time': '08/02 14:10', 'username': 'K3V1NC', 'team': 'rabbits', 'msg_id': 2473}
-{'time': '04/02 15:28', 'username': 'xHTx89', 'team': 'rabbits', 'msg_id': 2418}
-{'time': '04/02 15:00', 'username': 'blacktyg3r', 'team': 'bees', 'msg_id': 2390}
-{'time': '04/02 15:14', 'username': 'Thomas', 'team': 'bees', 'msg_id': 2411}
-{'time': '07/02 13:01', 'username': 'maxfreeman4', 'team': 'owls', 'msg_id': 2437}
-{'time': '08/02 11:41', 'username': 'fyby0810', 'team': 'owls', 'msg_id': 2466}
-"""
