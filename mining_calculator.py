@@ -12,8 +12,8 @@ class MiningYield:
     def _rig_vs_net(self):
         return self.rig.hashrate / self._network_hashrate()
 
-    def _target_diff(self) -> Decimal:
-        return Decimal(self.rig.updated_block['target_diffs'][self.rig.algorithm])
+    # def _target_diff(self) -> Decimal:
+    #     return Decimal(self.rig.updated_block['target_diffs'][self.rig.algorithm])
 
     def _block_reward(self) -> list:
         return self.rig.blockchain_.get_exact_reward(self._height())

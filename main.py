@@ -1,5 +1,7 @@
 import hashlib
+import threading
 
+import requests
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from aiogram.types import ParseMode, InlineQueryResultArticle, InputTextMessageContent, InlineQuery
 from aiogram import *
@@ -8,7 +10,7 @@ from responses.mining import MiningResponse
 # from responses.vitex import VitexResponse
 from parsers.mining import MiningParser
 from parsers.vitex import VitexParser
-from settings import Vitex, Mining, V3tests
+from settings import Vitex, Mining, V3tests, FEED_API, Database
 from database import DataBase
 from logger_ import logger
 from tools import get_username, get_teams, valid_channel, get_time
@@ -16,6 +18,27 @@ from keys import TOKEN
 
 
 __version__ = '0.1.0'
+
+
+def get_last_block_data():
+    url = f"{FEED_API.EXPLORER_EPIC_TECH.API_URL}/{FEED_API.EXPLORER_EPIC_TECH.API_CALLS['latest_block']}"
+    response = requests.get(url).json()['response']
+
+    data = {
+        'height': response['block_height'],
+        'network_hashrate': {
+            'progpow': response['progpowhashrate'],
+            'randomx': response['randomxhashrate'],
+            'cuckoo': response['cuckoohashrate'],
+            }
+        }
+    print(data)
+
+    return data
+
+
+get_last_block_data()
+
 
 # /------ AIOGRAM BOT SETTINGS ------\ #
 db_v3_tests = DataBase('v3_tests')
@@ -246,5 +269,7 @@ async def get_chat_ID(message: types.Message):
 
 # /------ START MAIN LOOP ------\ #
 if __name__ == '__main__':
+    t = threading.Thread(target=Database().updater, daemon=True)
+    t.start()
     logger.info("starting")
     executor.start_polling(dp, skip_updates=True)

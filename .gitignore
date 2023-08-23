@@ -4,6 +4,7 @@ __pycache__/
 keys.py
 main.log
 parsers/__pycache__/vitex.cpython-39.pyc
+*.pyc
 venv/
-.gitignore
 /db/
+/env/

@@ -5,8 +5,24 @@ from decimal import Decimal
 from typing import Union
 import itertools
 import json
+import time
 
 import requests
+
+
+class FEED_API:
+    class EXPLORER_EPIC_TECH:
+        API_URL = 'https://explorer.epic.tech/epic_explorer/v1'
+        API_CALLS = {'latest_block': 'blockchain_block/latesblockdetails',
+                     'block_by_height': 'blockchain_block'}
+        PUBLIC_API_URL = "https://explorer.epic.tech/api?q="
+
+    class EXPLORER_EPICMINE_ORG:
+        API_URL = 'https://api.epicmine.org'
+
+    class VITESCAN_IO:
+        BASE_URL = "https://vitescan.io/"
+        HOLDERS_API_URL = "vs-api/token?tokenId=tti_f370fadb275bc2a1a839c753&tabFlag=holders"
 
 
 class MarketData:
@@ -78,35 +94,41 @@ class Mining:
     INLINE_TRIGGERS = ['mining', 'calculator', 'calc']
     ALGO_PATTERNS = list(itertools.chain(*PATTERNS['mining_algorithms'].values()))
 
+
 class Database:
-    API_URL = "https://epic-radar.com/api/"
-    API_GET_VITEX_UPDATE = "vitex/update/"
-    API_GET_VITEX_HISTORY = "vitex/history/"
-    API_GET_VITEX_HOLDERS = "vitex/holders/"
+    API_URL = FEED_API.EXPLORER_EPIC_TECH.API_URL
+    BLOCK_API = FEED_API.EXPLORER_EPIC_TECH.API_CALLS['latest_block']
+    FILE_NAME = "db/block_data.json"
 
-    COINGECKO_EPIC_VS = "coingecko/epic_vs/"
+    def _fetch_explorer_data(self):
+        url = f"{self.API_URL}/{self.BLOCK_API}"
+        response = requests.get(url).json()['response']
 
-    API_GET_BLOCKS = "explorer/blocks/"
-    API_GET_POOLS = "explorer/pools/"
+        data = {
+            'height': response['block_height'],
+            'network_hashrate': {
+                'progpow': response['progpowhashrate'],
+                'randomx': response['randomxhashrate'],
+                'cuckoo': response['cuckoohashrate'],
+                }
+            }
+
+        self._save_to_file(data)
+        return data
+
+    def _save_to_file(self, data: dict):
+        with open(self.FILE_NAME, 'w') as file:
+            file.write(json.dumps(data))
+
+    def updater(self):
+        while True:
+            data = self._fetch_explorer_data()
+            print(f"Get explorer data: {data}")
+            time.sleep(60)
 
     def get_last_block_data(self):
-        response = requests.get(f"{self.API_URL}{self.API_GET_BLOCKS}")
-        blocks = json.loads(response.content)
-        return blocks['results'][0]
-
-class FEED_API:
-    class EXPLORER_EPIC_TECH:
-        API_URL = 'https://explorer.epic.tech/epic_explorer/v1'
-        API_CALLS = {'latest_block': 'blockchain_block/latesblockdetails',
-                     'block_by_height': 'blockchain_block'}
-        PUBLIC_API_URL = "https://explorer.epic.tech/api?q="
-
-    class EXPLORER_EPICMINE_ORG:
-        API_URL = 'https://api.epicmine.org'
-
-    class VITESCAN_IO:
-        BASE_URL = "https://vitescan.io/"
-        HOLDERS_API_URL = "vs-api/token?tokenId=tti_f370fadb275bc2a1a839c753&tabFlag=holders"
+        with open(self.FILE_NAME, 'r') as file:
+            return json.loads(file.read())
 
 
 class Blockchain:
@@ -129,6 +151,7 @@ class Blockchain:
             return [4.0, 0.1776, 3.8224, 2275200]
         elif 2023201 < height <= 2275200:
             return [2.0, 0.0888, 1.9112]
+
 
 class V3tests:
     TESTERS_CHANNEL_ID = '1001679402521'

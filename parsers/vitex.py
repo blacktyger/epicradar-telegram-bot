@@ -6,7 +6,9 @@ from settings import Database, Vitex
 class VitexParser:
     """Process Telegram User message, validate and return processed data"""
     DATABASE_API_URL = Database.API_URL
-    VITEX_UPDATE_QUERY = Database.API_GET_VITEX_UPDATE
+
+    # TODO: Not working
+    VITEX_UPDATE_QUERY = Database
 
     COMMANDS = Vitex.INLINE_TRIGGERS
 
