@@ -19,27 +19,6 @@ from keys import TOKEN
 
 __version__ = '0.1.0'
 
-
-def get_last_block_data():
-    url = f"{FEED_API.EXPLORER_EPIC_TECH.API_URL}/{FEED_API.EXPLORER_EPIC_TECH.API_CALLS['latest_block']}"
-    response = requests.get(url).json()['response']
-
-    data = {
-        'height': response['block_height'],
-        'network_hashrate': {
-            'progpow': response['progpowhashrate'],
-            'randomx': response['randomxhashrate'],
-            'cuckoo': response['cuckoohashrate'],
-            }
-        }
-    print(data)
-
-    return data
-
-
-get_last_block_data()
-
-
 # /------ AIOGRAM BOT SETTINGS ------\ #
 db_v3_tests = DataBase('v3_tests')
 storage = MemoryStorage()
